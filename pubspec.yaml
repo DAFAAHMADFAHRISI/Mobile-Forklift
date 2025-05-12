@@ -14,6 +14,8 @@ dependencies:
   cached_network_image: ^3.3.0
   image_picker: ^1.1.2
   shared_preferences: ^2.5.3
+  image_picker_web: ^4.0.0
+  cross_file: ^0.3.3
 
 dev_dependencies:
   flutter_test:

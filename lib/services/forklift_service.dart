@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:html' as html;
+import 'package:image_picker_web/image_picker_web.dart';
+import 'package:cross_file/cross_file.dart'; // Untuk XFile
 
 class ForkliftService {
   static const String baseUrl = 'http://localhost:3000/api/unit';
@@ -87,62 +89,113 @@ class ForkliftService {
     }
   }
 
-  // Add new forklift (web: JSON, mobile: multipart)
+  // Add new forklift (web & mobile: multipart/form-data)
   static Future<bool> addForklift(
-      Map<String, String> data, File? imageFile) async {
+      Map<String, String> data, dynamic imageFile) async {
     final token = kIsWeb
         ? html.window.localStorage['token']
         : (await SharedPreferences.getInstance()).getString('token');
     print('TOKEN: $token');
-    if (kIsWeb) {
-      // WEB: Kirim data sebagai JSON ke endpoint /store (tanpa gambar)
-      final response = await http.post(
-        Uri.parse('$baseUrl/store'),
-        headers: {
-          'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
-        body: json.encode(data),
-      );
-      if (response.statusCode == 200) {
-        final respData = json.decode(response.body);
-        return respData['status'] == true;
+
+    var uri = Uri.parse('$baseUrl/store');
+    var request = http.MultipartRequest('POST', uri);
+
+    if (token != null) request.headers['Authorization'] = 'Bearer $token';
+
+    // Hanya field yang didukung backend
+    final allowedFields = ['kapasitas', 'nama_unit', 'harga_per_jam'];
+    data.forEach((key, value) {
+      if (allowedFields.contains(key)) {
+        request.fields[key] = value;
       }
-      return false;
-    } else {
-      // MOBILE: Kirim data dan gambar pakai MultipartRequest ke /store
-      var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/store'));
-      if (token != null) request.headers['Authorization'] = 'Bearer $token';
-      data.forEach((key, value) => request.fields[key] = value);
-      if (imageFile != null) {
+    });
+
+    // Tambahkan file jika ada
+    if (imageFile != null) {
+      if (kIsWeb) {
+        // Pastikan imageFile adalah XFile dari image_picker_web
+        if (imageFile.runtimeType.toString() == 'XFile') {
+          var fileName = 'image.jpg';
+          try {
+            fileName = (imageFile as dynamic).name ?? 'image.jpg';
+          } catch (_) {}
+          final bytes = await imageFile.readAsBytes();
+          request.files.add(http.MultipartFile.fromBytes(
+            'gambar',
+            bytes,
+            filename: fileName,
+          ));
+        } else {
+          // Jika bukan XFile, skip file
+          print('Web: imageFile harus XFile dari image_picker_web');
+        }
+      } else {
         request.files
             .add(await http.MultipartFile.fromPath('gambar', imageFile.path));
       }
-      final response = await request.send();
-      if (response.statusCode == 200) {
-        final respStr = await response.stream.bytesToString();
-        final respData = json.decode(respStr);
-        return respData['status'] == true;
-      }
-      return false;
     }
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    print('ADD RESPONSE: \\${response.statusCode} \\${response.body}');
+
+    if (response.statusCode == 200) {
+      final respData = json.decode(response.body);
+      return respData['status'] == true;
+    }
+    return false;
   }
 
-  // Update forklift (web: JSON ke /edit/:id, mobile: multipart ke /edit/:id)
+  // Update forklift (web: multipart ke /edit/:id)
+  // Pastikan hanya field yang didukung backend: kapasitas, nama_unit, harga_per_jam
   static Future<bool> editForklift(
-      int id, Map<String, String> data, File? imageFile) async {
+      int id, Map<String, String> data, dynamic imageFile) async {
     final token = kIsWeb
         ? html.window.localStorage['token']
         : (await SharedPreferences.getInstance()).getString('token');
     print('TOKEN: $token');
-    final response = await http.put(
-      Uri.parse('$baseUrl/edit/$id'),
-      headers: {
-        'Content-Type': 'application/json',
-        if (token != null) 'Authorization': 'Bearer $token',
-      },
-      body: json.encode(data),
-    );
+
+    var uri = Uri.parse('$baseUrl/edit/$id');
+    var request = http.MultipartRequest('PUT', uri);
+
+    // Set header Authorization
+    if (token != null) request.headers['Authorization'] = 'Bearer $token';
+
+    // Hanya field yang didukung backend
+    final allowedFields = ['kapasitas', 'nama_unit', 'harga_per_jam'];
+    data.forEach((key, value) {
+      if (allowedFields.contains(key)) {
+        request.fields[key] = value;
+      }
+    });
+
+    // Tambahkan file jika ada
+    if (imageFile != null) {
+      if (kIsWeb) {
+        if (imageFile is XFile) {
+          var fileName = imageFile.name;
+          final bytes = await imageFile.readAsBytes();
+          request.files.add(http.MultipartFile.fromBytes(
+            'gambar',
+            bytes,
+            filename: fileName,
+          ));
+        } else {
+          print('Web: imageFile harus XFile dari image_picker_web');
+        }
+      } else {
+        request.files
+            .add(await http.MultipartFile.fromPath('gambar', imageFile.path));
+      }
+    }
+
+    // Kirim request
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    print('EDIT RESPONSE: \\${response.statusCode} \\${response.body}');
+
     if (response.statusCode == 200) {
       final respData = json.decode(response.body);
       return respData['status'] == true;
