@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forklift_mobile/screens/admin/admin_dashboard.dart';
+import '../../services/forklift_service.dart';
 
 class Masuk extends StatefulWidget {
   const Masuk({super.key});
@@ -10,13 +11,13 @@ class Masuk extends StatefulWidget {
 
 class _MasukState extends State<Masuk> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -33,18 +34,14 @@ class _MasukState extends State<Masuk> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
-                controller: _emailController,
+                controller: _usernameController,
                 decoration: const InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'Username',
                   border: OutlineInputBorder(),
                 ),
-                keyboardType: TextInputType.emailAddress,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Email harus diisi';
-                  }
-                  if (!value.contains('@')) {
-                    return 'Email tidak valid';
+                    return 'Username harus diisi';
                   }
                   return null;
                 },
@@ -68,55 +65,50 @@ class _MasukState extends State<Masuk> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed:
-                      _isLoading
-                          ? null
-                          : () async {
-                            if (_formKey.currentState!.validate()) {
-                              setState(() {
-                                _isLoading = true;
-                              });
+                  onPressed: _isLoading
+                      ? null
+                      : () async {
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              _isLoading = true;
+                            });
 
-                              // TODO: Implementasi login
-                              await Future.delayed(
-                                const Duration(seconds: 2),
-                              ); // Simulasi proses login
+                            // Panggil API login backend
+                            bool success = await ForkliftService.loginAdmin(
+                              _usernameController.text.trim(),
+                              _passwordController.text,
+                            );
 
-                              // Simulasi validasi role
-                              String email = _emailController.text.trim();
-                              String role =
-                                  email.contains('admin') ? 'admin' : 'user';
+                            setState(() {
+                              _isLoading = false;
+                            });
 
-                              setState(() {
-                                _isLoading = false;
-                              });
-
-                              if (mounted) {
-                                if (role == 'admin') {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) => const AdminDashboard(),
-                                    ),
-                                  );
-                                } else {
-                                  Navigator.pushReplacementNamed(
-                                    context,
-                                    '/user-dashboard',
-                                  );
-                                }
+                            if (mounted) {
+                              if (success) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AdminDashboard(),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text(
+                                          'Login gagal! Username/password salah.')),
+                                );
                               }
                             }
-                          },
-                  child:
-                      _isLoading
-                          ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : const Text('Masuk'),
+                          }
+                        },
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Masuk'),
                 ),
               ),
               const SizedBox(height: 16),

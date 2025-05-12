@@ -1,6 +1,135 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
 import '../../services/forklift_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class AdminGate extends StatefulWidget {
+  const AdminGate({super.key});
+  @override
+  State<AdminGate> createState() => _AdminGateState();
+}
+
+class _AdminGateState extends State<AdminGate> {
+  bool _isLoggedIn = false;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLogin();
+  }
+
+  Future<void> _checkLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    setState(() {
+      _isLoggedIn = token != null && token.isNotEmpty;
+      _loading = false;
+    });
+  }
+
+  void _onLoginSuccess() async {
+    await _checkLogin();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) return const Center(child: CircularProgressIndicator());
+    if (!_isLoggedIn) {
+      return AdminLoginForm(onLoginSuccess: _onLoginSuccess);
+    }
+    return KelolaForklift();
+  }
+}
+
+class AdminLoginForm extends StatefulWidget {
+  final VoidCallback onLoginSuccess;
+  const AdminLoginForm({required this.onLoginSuccess, super.key});
+  @override
+  State<AdminLoginForm> createState() => _AdminLoginFormState();
+}
+
+class _AdminLoginFormState extends State<AdminLoginForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _loading = false;
+  String? _error;
+
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    final success = await ForkliftService.loginAdmin(
+      _usernameController.text,
+      _passwordController.text,
+    );
+    setState(() {
+      _loading = false;
+    });
+    if (success) {
+      widget.onLoginSuccess();
+    } else {
+      setState(() {
+        _error = 'Login gagal!';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Card(
+        margin: const EdgeInsets.all(32),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('Login Admin',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _usernameController,
+                  decoration: const InputDecoration(labelText: 'Username'),
+                  validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
+                ),
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: const InputDecoration(labelText: 'Password'),
+                  obscureText: true,
+                  validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
+                ),
+                const SizedBox(height: 16),
+                if (_error != null) ...[
+                  Text(_error!, style: const TextStyle(color: Colors.red)),
+                  const SizedBox(height: 8),
+                ],
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _loading ? null : _login,
+                    child: _loading
+                        ? const CircularProgressIndicator()
+                        : const Text('Login'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class KelolaForklift extends StatefulWidget {
   const KelolaForklift({super.key});
@@ -53,6 +182,16 @@ class _KelolaForkliftState extends State<KelolaForklift> {
         SnackBar(content: Text('Gagal menghapus unit: ${e.toString()}')),
       );
     }
+  }
+
+  void _showForkliftForm({Map<String, dynamic>? forklift}) {
+    showDialog(
+      context: context,
+      builder: (context) => ForkliftForm(
+        forklift: forklift,
+        onSuccess: _loadForklifts,
+      ),
+    );
   }
 
   @override
@@ -131,7 +270,8 @@ class _KelolaForkliftState extends State<KelolaForklift> {
                                                 size: 20),
                                             color: orange,
                                             onPressed: () {
-                                              // TODO: Implementasi edit unit
+                                              _showForkliftForm(
+                                                  forklift: forklift);
                                             },
                                           ),
                                           IconButton(
@@ -228,10 +368,130 @@ class _KelolaForkliftState extends State<KelolaForklift> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: orange,
         onPressed: () {
-          // TODO: Implementasi tambah unit baru
+          _showForkliftForm();
         },
         child: const Icon(Icons.add),
       ),
+    );
+  }
+}
+
+class ForkliftForm extends StatefulWidget {
+  final Map<String, dynamic>? forklift;
+  final Function onSuccess;
+  const ForkliftForm({this.forklift, required this.onSuccess, super.key});
+
+  @override
+  State<ForkliftForm> createState() => _ForkliftFormState();
+}
+
+class _ForkliftFormState extends State<ForkliftForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _namaController = TextEditingController();
+  final _kapasitasController = TextEditingController();
+  final _hargaController = TextEditingController();
+  final _deskripsiController = TextEditingController();
+  File? _imageFile;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.forklift != null) {
+      _namaController.text = widget.forklift!['nama_unit'] ?? '';
+      _kapasitasController.text = widget.forklift!['kapasitas'] ?? '';
+      _hargaController.text =
+          widget.forklift!['harga_per_jam']?.toString() ?? '';
+      _deskripsiController.text = widget.forklift!['deskripsi'] ?? '';
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked != null) setState(() => _imageFile = File(picked.path));
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    final data = {
+      'nama_unit': _namaController.text,
+      'kapasitas': _kapasitasController.text,
+      'harga_per_jam': _hargaController.text,
+      'deskripsi': _deskripsiController.text,
+    };
+    bool success;
+    if (widget.forklift == null) {
+      success = await ForkliftService.addForklift(data, _imageFile);
+    } else {
+      success = await ForkliftService.editForklift(
+          widget.forklift!['id_unit'], data, _imageFile);
+    }
+    if (success) {
+      widget.onSuccess();
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal menyimpan data!')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title:
+          Text(widget.forklift == null ? 'Tambah Forklift' : 'Edit Forklift'),
+      content: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _namaController,
+                decoration: const InputDecoration(labelText: 'Nama Unit'),
+                validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
+              ),
+              TextFormField(
+                controller: _kapasitasController,
+                decoration:
+                    const InputDecoration(labelText: 'Kapasitas (contoh: 3)'),
+                validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
+              ),
+              TextFormField(
+                controller: _hargaController,
+                decoration: const InputDecoration(labelText: 'Harga per Jam'),
+                keyboardType: TextInputType.number,
+                validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
+              ),
+              TextFormField(
+                controller: _deskripsiController,
+                decoration: const InputDecoration(labelText: 'Deskripsi'),
+                maxLines: 2,
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: _pickImage,
+                    child: const Text('Pilih Gambar'),
+                  ),
+                  if (_imageFile != null)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Text(p.basename(_imageFile!.path)),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal')),
+        ElevatedButton(onPressed: _submit, child: const Text('Simpan')),
+      ],
     );
   }
 }
