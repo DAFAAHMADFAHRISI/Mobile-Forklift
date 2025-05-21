@@ -24,8 +24,15 @@ class ForkliftService {
 
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
-      // Langsung kembalikan response dari backend
-      return responseData;
+      if (responseData['status'] == true) {
+        final data = responseData['data'];
+        final token = data['token'];
+        // Simpan token ke SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
+        return responseData;
+      }
+      throw Exception(responseData['message']);
     }
 
     return {
