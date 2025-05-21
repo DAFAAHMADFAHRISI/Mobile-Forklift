@@ -65,18 +65,27 @@ class _AdminLoginFormState extends State<AdminLoginForm> {
       _loading = true;
       _error = null;
     });
-    final success = await ForkliftService.loginAdmin(
+
+    final loginResult = await ForkliftService.login(
       _usernameController.text,
       _passwordController.text,
     );
+
     setState(() {
       _loading = false;
     });
-    if (success) {
-      widget.onLoginSuccess();
+
+    if (loginResult['success']) {
+      if (loginResult['isAdmin']) {
+        widget.onLoginSuccess();
+      } else {
+        setState(() {
+          _error = 'Akses ditolak! Anda bukan admin.';
+        });
+      }
     } else {
       setState(() {
-        _error = 'Login gagal!';
+        _error = loginResult['message'] ?? 'Login gagal!';
       });
     }
   }
@@ -392,6 +401,8 @@ class _ForkliftFormState extends State<ForkliftForm> {
   final _hargaController = TextEditingController();
   final _deskripsiController = TextEditingController();
   File? _imageFile;
+  String? _currentImageUrl;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -402,36 +413,108 @@ class _ForkliftFormState extends State<ForkliftForm> {
       _hargaController.text =
           widget.forklift!['harga_per_jam']?.toString() ?? '';
       _deskripsiController.text = widget.forklift!['deskripsi'] ?? '';
+      _currentImageUrl = widget.forklift!['gambar'];
     }
   }
 
   Future<void> _pickImage() async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked != null) setState(() => _imageFile = File(picked.path));
+    try {
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80, // Kompres gambar untuk mengurangi ukuran
+        maxWidth: 1024, // Batasi lebar maksimum
+        maxHeight: 1024, // Batasi tinggi maksimum
+      );
+
+      if (picked != null) {
+        final extension = picked.path.split('.').last.toLowerCase();
+        print('Selected image extension: $extension');
+        print('Selected image path: ${picked.path}');
+
+        if (!['jpg', 'jpeg', 'png'].contains(extension)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Hanya file JPEG, JPG, dan PNG yang diperbolehkan'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        // Cek ukuran file
+        final file = File(picked.path);
+        final fileSize = await file.length();
+        print('File size: ${fileSize} bytes');
+
+        if (fileSize > 5 * 1024 * 1024) {
+          // 5MB limit
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Ukuran file terlalu besar. Maksimal 5MB'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        setState(() {
+          _imageFile = file;
+          _currentImageUrl =
+              null; // Reset current image URL when new image is picked
+        });
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error picking image: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
     final data = {
       'nama_unit': _namaController.text,
       'kapasitas': _kapasitasController.text,
       'harga_per_jam': _hargaController.text,
       'deskripsi': _deskripsiController.text,
     };
-    bool success;
-    if (widget.forklift == null) {
-      success = await ForkliftService.addForklift(data, _imageFile);
-    } else {
-      success = await ForkliftService.editForklift(
-          widget.forklift!['id_unit'], data, _imageFile);
-    }
-    if (success) {
-      widget.onSuccess();
-      Navigator.pop(context);
-    } else {
+
+    try {
+      bool success;
+      if (widget.forklift == null) {
+        success = await ForkliftService.addForklift(data, _imageFile);
+      } else {
+        success = await ForkliftService.editForklift(
+            widget.forklift!['id_unit'], data, _imageFile);
+      }
+
+      if (success) {
+        widget.onSuccess();
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Gagal menyimpan data!'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal menyimpan data!')),
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -446,6 +529,33 @@ class _ForkliftFormState extends State<ForkliftForm> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (_currentImageUrl != null && _imageFile == null)
+                Container(
+                  height: 150,
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    image: DecorationImage(
+                      image: NetworkImage(
+                          'http://localhost:3000/images/$_currentImageUrl'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              if (_imageFile != null)
+                Container(
+                  height: 150,
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    image: DecorationImage(
+                      image: FileImage(_imageFile!),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
               TextFormField(
                 controller: _namaController,
                 decoration: const InputDecoration(labelText: 'Nama Unit'),
@@ -490,7 +600,16 @@ class _ForkliftFormState extends State<ForkliftForm> {
         TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Batal')),
-        ElevatedButton(onPressed: _submit, child: const Text('Simpan')),
+        ElevatedButton(
+          onPressed: _isLoading ? null : _submit,
+          child: _isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Simpan'),
+        ),
       ],
     );
   }

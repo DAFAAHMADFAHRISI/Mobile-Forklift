@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
+import 'order_history.dart';
 
 class NewOrder extends StatefulWidget {
-  const NewOrder({super.key});
+  final Map<String, dynamic>? selectedForklift;
+  const NewOrder({this.selectedForklift, super.key});
 
   @override
   State<NewOrder> createState() => _NewOrderState();
@@ -35,6 +40,17 @@ class _NewOrderState extends State<NewOrder> {
     {'id': 1, 'nama_operator': 'Budi Santoso', 'pengalaman': '5 tahun'},
     {'id': 2, 'nama_operator': 'Andi Wijaya', 'pengalaman': '3 tahun'},
   ];
+
+  File? _buktiTransfer;
+  bool _isUploading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.selectedForklift != null) {
+      _selectedForklift = widget.selectedForklift;
+    }
+  }
 
   @override
   void dispose() {
@@ -72,6 +88,99 @@ class _NewOrderState extends State<NewOrder> {
     return _selectedForklift!['harga_per_jam'] * duration;
   }
 
+  Future<void> _pickBuktiTransfer() async {
+    try {
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+        maxWidth: 1024,
+        maxHeight: 1024,
+      );
+
+      if (picked != null) {
+        final extension = picked.path.split('.').last.toLowerCase();
+        if (!['jpg', 'jpeg', 'png'].contains(extension)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Hanya file JPEG, JPG, dan PNG yang diperbolehkan'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        final file = File(picked.path);
+        final fileSize = await file.length();
+        if (fileSize > 5 * 1024 * 1024) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Ukuran file terlalu besar. Maksimal 5MB'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        setState(() {
+          _buktiTransfer = file;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error memilih file: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _submitOrder() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (_buktiTransfer == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Bukti transfer harus diunggah'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isUploading = true);
+
+    try {
+      // TODO: Implementasi upload bukti transfer dan simpan pemesanan
+      await Future.delayed(const Duration(seconds: 2)); // Simulasi upload
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Pemesanan berhasil dibuat'),
+          ),
+        );
+        // Navigate ke halaman riwayat pemesanan
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const OrderHistory()),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isUploading = false);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,13 +198,12 @@ class _NewOrderState extends State<NewOrder> {
                   border: OutlineInputBorder(),
                 ),
                 value: _selectedForklift,
-                items:
-                    _forklifts.map((forklift) {
-                      return DropdownMenuItem(
-                        value: forklift,
-                        child: Text(forklift['nama_unit']),
-                      );
-                    }).toList(),
+                items: _forklifts.map((forklift) {
+                  return DropdownMenuItem(
+                    value: forklift,
+                    child: Text(forklift['nama_unit']),
+                  );
+                }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedForklift = value;
@@ -115,13 +223,12 @@ class _NewOrderState extends State<NewOrder> {
                   border: OutlineInputBorder(),
                 ),
                 value: _selectedOperator,
-                items:
-                    _operators.map((operator) {
-                      return DropdownMenuItem(
-                        value: operator,
-                        child: Text(operator['nama_operator']),
-                      );
-                    }).toList(),
+                items: _operators.map((operator) {
+                  return DropdownMenuItem(
+                    value: operator,
+                    child: Text(operator['nama_operator']),
+                  );
+                }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedOperator = value;
@@ -218,21 +325,89 @@ class _NewOrderState extends State<NewOrder> {
                 ),
               ),
               const SizedBox(height: 32),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Informasi Pembayaran',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Transfer ke:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const Text('Bank BCA'),
+                      const Text('No. Rekening: 1234567890'),
+                      const Text('a.n. PT Forklift Rental'),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Total Pembayaran:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Rp ${_calculateTotal()}',
+                        style: const TextStyle(
+                          color: Colors.green,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Upload Bukti Transfer:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      if (_buktiTransfer != null)
+                        Container(
+                          height: 150,
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            image: DecorationImage(
+                              image: FileImage(_buktiTransfer!),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      Row(
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: _pickBuktiTransfer,
+                            icon: const Icon(Icons.upload_file),
+                            label: const Text('Pilih File'),
+                          ),
+                          if (_buktiTransfer != null)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Text(p.basename(_buktiTransfer!.path)),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // TODO: Implementasi simpan pemesanan
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Pemesanan berhasil dibuat'),
-                        ),
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text('Buat Pemesanan'),
+                  onPressed: _isUploading ? null : _submitOrder,
+                  child: _isUploading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Buat Pemesanan'),
                 ),
               ),
             ],

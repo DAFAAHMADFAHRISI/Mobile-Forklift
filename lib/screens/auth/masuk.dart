@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:forklift_mobile/screens/admin/admin_dashboard.dart';
+import 'package:forklift_mobile/screens/user/user_dashboard.dart';
+import 'package:forklift_mobile/screens/auth/daftar.dart';
 import '../../services/forklift_service.dart';
 
 class Masuk extends StatefulWidget {
@@ -33,6 +35,15 @@ class _MasukState extends State<Masuk> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Center(
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  height: 150,
+                  width: 150,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(height: 32),
               TextFormField(
                 controller: _usernameController,
                 decoration: const InputDecoration(
@@ -74,7 +85,8 @@ class _MasukState extends State<Masuk> {
                             });
 
                             // Panggil API login backend
-                            bool success = await ForkliftService.loginAdmin(
+                            Map<String, dynamic> loginResult =
+                                await ForkliftService.login(
                               _usernameController.text.trim(),
                               _passwordController.text,
                             );
@@ -84,19 +96,42 @@ class _MasukState extends State<Masuk> {
                             });
 
                             if (mounted) {
-                              if (success) {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const AdminDashboard(),
-                                  ),
-                                );
+                              print(
+                                  'Login Result: $loginResult'); // Debug print
+                              if (loginResult['status'] == true) {
+                                // Perbaikan cara mengakses data user
+                                final data = loginResult['data'];
+                                final user = data['user'];
+                                final isAdmin = user['role'] == 'admin';
+                                print(
+                                    'User Role: ${user['role']}'); // Debug print
+                                print('Is Admin: $isAdmin'); // Debug print
+
+                                if (isAdmin) {
+                                  print('Redirecting to Admin Dashboard');
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const AdminDashboard(),
+                                    ),
+                                  );
+                                } else {
+                                  print('Redirecting to User Dashboard');
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const UserDashboard(),
+                                    ),
+                                  );
+                                }
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text(
-                                          'Login gagal! Username/password salah.')),
+                                  SnackBar(
+                                    content: Text(loginResult['message'] ??
+                                        'Login gagal! Username/password salah.'),
+                                  ),
                                 );
                               }
                             }
@@ -118,7 +153,10 @@ class _MasukState extends State<Masuk> {
                   const Text('Belum punya akun?'),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/daftar');
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const Daftar()),
+                      );
                     },
                     child: const Text('Daftar'),
                   ),
