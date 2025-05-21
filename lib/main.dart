@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forklift_mobile/screens/auth/daftar.dart';
+import 'package:forklift_mobile/screens/splash_screen.dart';
 import 'package:forklift_mobile/theme/app_theme.dart';
 
 void main() {
@@ -14,7 +15,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Forklift Rental',
       theme: AppTheme.lightTheme,
-      home: Daftar(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const SplashScreen(),
+        '/home': (context) => Daftar(), // Ganti dengan halaman utama Anda
+      },
       debugShowCheckedModeBanner: false,
     );
   }
