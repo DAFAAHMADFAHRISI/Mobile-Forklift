@@ -399,7 +399,6 @@ class _ForkliftFormState extends State<ForkliftForm> {
   final _namaController = TextEditingController();
   final _kapasitasController = TextEditingController();
   final _hargaController = TextEditingController();
-  final _deskripsiController = TextEditingController();
   File? _imageFile;
   String? _currentImageUrl;
   bool _isLoading = false;
@@ -412,7 +411,6 @@ class _ForkliftFormState extends State<ForkliftForm> {
       _kapasitasController.text = widget.forklift!['kapasitas'] ?? '';
       _hargaController.text =
           widget.forklift!['harga_per_jam']?.toString() ?? '';
-      _deskripsiController.text = widget.forklift!['deskripsi'] ?? '';
       _currentImageUrl = widget.forklift!['gambar'];
     }
   }
@@ -483,7 +481,6 @@ class _ForkliftFormState extends State<ForkliftForm> {
       'nama_unit': _namaController.text,
       'kapasitas': _kapasitasController.text,
       'harga_per_jam': _hargaController.text,
-      'deskripsi': _deskripsiController.text,
     };
 
     try {
@@ -572,11 +569,6 @@ class _ForkliftFormState extends State<ForkliftForm> {
                 decoration: const InputDecoration(labelText: 'Harga per Jam'),
                 keyboardType: TextInputType.number,
                 validator: (v) => v!.isEmpty ? 'Wajib diisi' : null,
-              ),
-              TextFormField(
-                controller: _deskripsiController,
-                decoration: const InputDecoration(labelText: 'Deskripsi'),
-                maxLines: 2,
               ),
               const SizedBox(height: 10),
               Row(
