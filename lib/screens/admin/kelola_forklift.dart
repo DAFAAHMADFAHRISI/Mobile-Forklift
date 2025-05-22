@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import '../../services/forklift_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 
 class AdminGate extends StatefulWidget {
   const AdminGate({super.key});
@@ -237,7 +238,7 @@ class _KelolaForkliftState extends State<KelolaForklift> {
                                 child: forklift['gambar'] != null
                                     ? CachedNetworkImage(
                                         imageUrl:
-                                            'http://10.0.0.10:3000/images/${forklift['gambar']}',
+                                            'http://10.251.130.109:3000/images/${forklift['gambar']}',
                                         fit: BoxFit.cover,
                                         width: 110,
                                         height: 90,
@@ -399,7 +400,7 @@ class _ForkliftFormState extends State<ForkliftForm> {
   final _namaController = TextEditingController();
   final _kapasitasController = TextEditingController();
   final _hargaController = TextEditingController();
-  File? _imageFile;
+  dynamic _imageFile;
   String? _currentImageUrl;
   bool _isLoading = false;
 
@@ -417,58 +418,69 @@ class _ForkliftFormState extends State<ForkliftForm> {
 
   Future<void> _pickImage() async {
     try {
-      final picked = await ImagePicker().pickImage(
+      final ImagePicker picker = ImagePicker();
+      final XFile? picked = await picker.pickImage(
         source: ImageSource.gallery,
-        imageQuality: 80, // Kompres gambar untuk mengurangi ukuran
-        maxWidth: 1024, // Batasi lebar maksimum
-        maxHeight: 1024, // Batasi tinggi maksimum
+        imageQuality: 80,
+        maxWidth: 1024,
+        maxHeight: 1024,
       );
 
       if (picked != null) {
-        final extension = picked.path.split('.').last.toLowerCase();
-        print('Selected image extension: $extension');
-        print('Selected image path: ${picked.path}');
+        if (kIsWeb) {
+          // For web platform
+          setState(() {
+            _imageFile = picked;
+            _currentImageUrl = null;
+          });
+        } else {
+          // For mobile platform
+          final file = File(picked.path);
+          final extension = picked.path.split('.').last.toLowerCase();
 
-        if (!['jpg', 'jpeg', 'png'].contains(extension)) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Hanya file JPEG, JPG, dan PNG yang diperbolehkan'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
+          if (!['jpg', 'jpeg', 'png'].contains(extension)) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content:
+                      Text('Hanya file JPEG, JPG, dan PNG yang diperbolehkan'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+            return;
+          }
+
+          // Check file size (5MB limit)
+          final fileSize = await file.length();
+          if (fileSize > 5 * 1024 * 1024) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Ukuran file terlalu besar. Maksimal 5MB'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+            return;
+          }
+
+          setState(() {
+            _imageFile = file;
+            _currentImageUrl = null;
+          });
         }
-
-        // Cek ukuran file
-        final file = File(picked.path);
-        final fileSize = await file.length();
-        print('File size: ${fileSize} bytes');
-
-        if (fileSize > 5 * 1024 * 1024) {
-          // 5MB limit
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Ukuran file terlalu besar. Maksimal 5MB'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
-        }
-
-        setState(() {
-          _imageFile = file;
-          _currentImageUrl =
-              null; // Reset current image URL when new image is picked
-        });
       }
     } catch (e) {
       print('Error picking image: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error picking image: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error picking image: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -493,25 +505,33 @@ class _ForkliftFormState extends State<ForkliftForm> {
       }
 
       if (success) {
-        widget.onSuccess();
-        Navigator.pop(context);
+        if (mounted) {
+          widget.onSuccess();
+          Navigator.pop(context);
+        }
       } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Gagal menyimpan data!'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Gagal menyimpan data!'),
+          SnackBar(
+            content: Text('Error: $e'),
             backgroundColor: Colors.red,
           ),
         );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -535,7 +555,7 @@ class _ForkliftFormState extends State<ForkliftForm> {
                     borderRadius: BorderRadius.circular(8),
                     image: DecorationImage(
                       image: NetworkImage(
-                          'http://10.0.0.10:3000/images/$_currentImageUrl'),
+                          'http://10.251.130.109:3000/images/$_currentImageUrl'),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -548,7 +568,9 @@ class _ForkliftFormState extends State<ForkliftForm> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     image: DecorationImage(
-                      image: FileImage(_imageFile!),
+                      image: kIsWeb
+                          ? NetworkImage(_imageFile.path)
+                          : FileImage(_imageFile as File) as ImageProvider,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -580,7 +602,7 @@ class _ForkliftFormState extends State<ForkliftForm> {
                   if (_imageFile != null)
                     Padding(
                       padding: const EdgeInsets.only(left: 8),
-                      child: Text(p.basename(_imageFile!.path)),
+                      child: Text(p.basename(_imageFile.path)),
                     ),
                 ],
               ),

@@ -4,10 +4,11 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ForkliftService {
-  static const String baseUrl = 'http://10.0.0.10:3000/api/unit';
-  static const String authUrl = 'http://10.0.0.10:3000/api/auth/login';
+  static const String baseUrl = 'http://10.251.130.109:3000/api/unit';
+  static const String authUrl = 'http://10.251.130.109:3000/api/auth/login';
 
   // Fungsi login untuk semua user (admin dan user biasa)
   static Future<Map<String, dynamic>> login(
@@ -82,7 +83,7 @@ class ForkliftService {
 
   // Add new forklift
   static Future<bool> addForklift(
-      Map<String, String> data, File? imageFile) async {
+      Map<String, String> data, dynamic imageFile) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     print('TOKEN: $token');
@@ -100,27 +101,52 @@ class ForkliftService {
       }
     });
 
-    // Tambahkan file jika ada
+    // Handle image upload for both web and mobile
     if (imageFile != null) {
-      request.files
-          .add(await http.MultipartFile.fromPath('gambar', imageFile.path));
+      if (kIsWeb) {
+        // Web platform
+        final bytes = await imageFile.readAsBytes();
+        final fileName = imageFile.name;
+        final mimeType = _getMimeType(fileName);
+
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'gambar',
+            bytes,
+            filename: fileName,
+            contentType: MediaType.parse(mimeType),
+          ),
+        );
+      } else {
+        // Mobile platform
+        if (imageFile is File) {
+          request.files.add(
+            await http.MultipartFile.fromPath('gambar', imageFile.path),
+          );
+        }
+      }
     }
 
-    final streamedResponse = await request.send();
-    final response = await http.Response.fromStream(streamedResponse);
+    try {
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
-    print('ADD RESPONSE: ${response.statusCode} ${response.body}');
+      print('ADD RESPONSE: ${response.statusCode} ${response.body}');
 
-    if (response.statusCode == 200) {
-      final respData = json.decode(response.body);
-      return respData['status'] == true;
+      if (response.statusCode == 200) {
+        final respData = json.decode(response.body);
+        return respData['status'] == true;
+      }
+      throw Exception('Failed to add forklift: ${response.body}');
+    } catch (e) {
+      print('Error in addForklift: $e');
+      throw Exception('Failed to add forklift: $e');
     }
-    return false;
   }
 
   // Update forklift
   static Future<bool> editForklift(
-      int id, Map<String, String> data, File? imageFile) async {
+      int id, Map<String, String> data, dynamic imageFile) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     print('TOKEN: $token');
@@ -128,13 +154,11 @@ class ForkliftService {
     var uri = Uri.parse('$baseUrl/edit/$id');
     var request = http.MultipartRequest('PUT', uri);
 
-    // Tambahkan header Authorization dengan format yang benar
     if (token != null) {
       request.headers['Authorization'] = 'Bearer $token';
       request.headers['Accept'] = 'application/json';
     }
 
-    // Hanya field yang didukung backend
     final allowedFields = [
       'kapasitas',
       'nama_unit',
@@ -147,52 +171,69 @@ class ForkliftService {
       }
     });
 
-    // Tambahkan file jika ada
+    // Handle image upload for both web and mobile
     if (imageFile != null) {
-      final extension = imageFile.path.split('.').last.toLowerCase();
-      print('File extension: $extension');
-      print('File path: ${imageFile.path}');
-      print('File exists: ${await imageFile.exists()}');
-      print('File size: ${await imageFile.length()} bytes');
+      if (kIsWeb) {
+        // Web platform
+        final bytes = await imageFile.readAsBytes();
+        final fileName = imageFile.name;
+        final mimeType = _getMimeType(fileName);
 
-      if (!['jpg', 'jpeg', 'png'].contains(extension)) {
-        throw Exception('Hanya file JPEG, JPG, dan PNG yang diperbolehkan');
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'gambar',
+            bytes,
+            filename: fileName,
+            contentType: MediaType.parse(mimeType),
+          ),
+        );
+      } else {
+        // Mobile platform
+        if (imageFile is File) {
+          final extension = imageFile.path.split('.').last.toLowerCase();
+          if (!['jpg', 'jpeg', 'png'].contains(extension)) {
+            throw Exception('Hanya file JPEG, JPG, dan PNG yang diperbolehkan');
+          }
+
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'gambar',
+              imageFile.path,
+              filename: imageFile.path.split('/').last,
+            ),
+          );
+        }
       }
-      final fileName = imageFile.path.split('/').last;
-      print('Uploading file: $fileName');
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'gambar',
-          imageFile.path,
-          filename: fileName,
-        ),
-      );
     }
 
     try {
-      print('Sending request to: \\${uri.toString()}');
-      print('Request headers: \\${request.headers}');
-      print('Request fields: \\${request.fields}');
-
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      print('EDIT RESPONSE: \\${response.statusCode} \\${response.body}');
+      print('EDIT RESPONSE: ${response.statusCode} ${response.body}');
 
       if (response.statusCode == 200) {
         final respData = json.decode(response.body);
         return respData['status'] == true;
-      } else {
-        print(
-            'EDIT ERROR: Status code: \\${response.statusCode}, Body: \\${response.body}');
       }
-      return false;
-    } on SocketException catch (e) {
-      print('SocketException in editForklift: $e');
-      return false;
+      throw Exception('Failed to edit forklift: ${response.body}');
     } catch (e) {
       print('Error in editForklift: $e');
-      return false;
+      throw Exception('Failed to edit forklift: $e');
+    }
+  }
+
+  // Helper function to get MIME type
+  static String _getMimeType(String fileName) {
+    final extension = fileName.split('.').last.toLowerCase();
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      default:
+        return 'application/octet-stream';
     }
   }
 
