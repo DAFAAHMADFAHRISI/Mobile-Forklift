@@ -29,7 +29,7 @@ class _KelolaOperatorState extends State<KelolaOperator> {
     try {
       final token = await ForkliftService.getToken();
       final response = await http.get(
-        Uri.parse('http://10.251.130.109:3000/api/operator'),
+        Uri.parse('http://localhost:3000/api/operator'),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
@@ -126,7 +126,7 @@ class _KelolaOperatorState extends State<KelolaOperator> {
     try {
       final token = await ForkliftService.getToken();
       final response = await http.post(
-        Uri.parse('http://10.251.130.109:3000/api/operator/store'),
+        Uri.parse('http://localhost:3000/api/operator/store'),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
@@ -224,7 +224,7 @@ class _KelolaOperatorState extends State<KelolaOperator> {
     try {
       final token = await ForkliftService.getToken();
       final response = await http.put(
-        Uri.parse('http://10.251.130.109:3000/api/operator/edit/$id'),
+        Uri.parse('http://localhost:3000/api/operator/edit/$id'),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',

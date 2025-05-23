@@ -14,6 +14,14 @@ class _KelolaPemesananState extends State<KelolaPemesanan> {
   bool _isLoading = true;
   String? _error;
 
+  // Tambahkan daftar status sesuai ENUM backend
+  final List<String> statusList = [
+    'menunggu pembayaran',
+    'menunggu konfirmasi',
+    'dikirim',
+    'selesai',
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -112,6 +120,28 @@ class _KelolaPemesananState extends State<KelolaPemesanan> {
           SnackBar(content: Text('Error: ${e.toString()}')),
         );
       }
+    }
+  }
+
+  // Tambahkan fungsi untuk menampilkan dialog pilihan status
+  Future<void> _showStatusPicker(String id) async {
+    final selectedStatus = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return SimpleDialog(
+          title: const Text('Pilih Status Baru'),
+          children: statusList.map((status) {
+            return SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, status),
+              child: Text(status),
+            );
+          }).toList(),
+        );
+      },
+    );
+
+    if (selectedStatus != null) {
+      await _updateStatus(id, selectedStatus);
     }
   }
 
@@ -250,10 +280,8 @@ class _KelolaPemesananState extends State<KelolaPemesanan> {
                                                 BorderRadius.circular(8),
                                           ),
                                         ),
-                                        onPressed: () => _updateStatus(
-                                          order['id'].toString(),
-                                          'menunggu konfirmasi',
-                                        ),
+                                        onPressed: () => _showStatusPicker(
+                                            order['id'].toString()),
                                         icon: const Icon(
                                             Icons.check_circle_outline),
                                         label:

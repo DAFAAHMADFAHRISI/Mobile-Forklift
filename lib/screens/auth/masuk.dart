@@ -37,7 +37,7 @@ class _MasukState extends State<Masuk> {
             children: [
               Center(
                 child: Image.asset(
-                  'assets/images/logo.png',
+                  'assets/images/Logo.jpg',
                   height: 150,
                   width: 150,
                   fit: BoxFit.contain,
@@ -76,6 +76,10 @@ class _MasukState extends State<Masuk> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(255, 0, 0, 1),
+                    foregroundColor: Colors.white,
+                  ),
                   onPressed: _isLoading
                       ? null
                       : () async {
