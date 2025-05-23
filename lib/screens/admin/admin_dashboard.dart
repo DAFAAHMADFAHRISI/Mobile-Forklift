@@ -63,7 +63,7 @@ class AdminDashboard extends StatelessWidget {
           ),
           _buildMenuCard(
             context,
-            'Manajemen Pemesanan',
+            'Manajemen Pemesanan Baru',
             Icons.shopping_cart,
             Colors.purple,
             () => Navigator.push(

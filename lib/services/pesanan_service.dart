@@ -18,7 +18,19 @@ class PesananService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['status']) {
-          return List<Map<String, dynamic>>.from(data['data']);
+          // Mapping field dari API ke field yang digunakan di UI
+          return List<Map<String, dynamic>>.from(data['data'].map((order) => {
+                'id': order['id_pemesanan'],
+                'nama_user': order['nama_user'],
+                'nama_unit': order['nama_unit'],
+                'nama_operator': order['nama_operator'],
+                'tanggal_mulai': order['tanggal_mulai'],
+                'tanggal_selesai': order['tanggal_selesai'],
+                'lokasi_pengiriman': order['lokasi_pengiriman'],
+                'nama_perusahaan': order['nama_perusahaan'],
+                'status': order['status'],
+                'total_harga': order['total_harga'], // jika ada di API
+              }));
         }
         throw Exception(data['message']);
       }
