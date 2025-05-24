@@ -73,7 +73,7 @@ class AdminDashboard extends StatelessWidget {
           ),
           _buildMenuCard(
             context,
-            'Verifikasi Pembayaran',
+            'Verifikasi bukti transfer',
             Icons.payment,
             Colors.amber,
             () => Navigator.push(
