@@ -12,9 +12,9 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Navigasi ke halaman utama setelah 4 detik
+    // Navigasi ke halaman login setelah 4 detik
     Timer(const Duration(seconds: 4), () {
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/login');
     });
   }
 

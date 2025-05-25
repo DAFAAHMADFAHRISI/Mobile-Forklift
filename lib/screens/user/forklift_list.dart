@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../services/forklift_service.dart';
+import 'package:forklift_mobile/screens/user/new_order.dart';
 
 class ForkliftList extends StatefulWidget {
   const ForkliftList({super.key});
@@ -164,9 +165,14 @@ class _ForkliftListState extends State<ForkliftList> {
                                                 vertical: 10),
                                           ),
                                           onPressed: () {
-                                            Navigator.pushNamed(
-                                                context, '/new-order',
-                                                arguments: forklift);
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => NewOrder(
+                                                  selectedForklift: forklift,
+                                                ),
+                                              ),
+                                            );
                                           },
                                           child: const Text('Pesan Sekarang',
                                               style: TextStyle(

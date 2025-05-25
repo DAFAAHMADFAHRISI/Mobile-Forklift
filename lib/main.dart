@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:forklift_mobile/screens/auth/daftar.dart';
+import 'package:forklift_mobile/screens/auth/masuk.dart';
 import 'package:forklift_mobile/screens/splash_screen.dart';
 import 'package:forklift_mobile/theme/app_theme.dart';
 
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const SplashScreen(),
-        '/home': (context) => Daftar(), // Ganti dengan halaman utama Anda
+        '/login': (context) => const Masuk(),
       },
       debugShowCheckedModeBanner: false,
     );

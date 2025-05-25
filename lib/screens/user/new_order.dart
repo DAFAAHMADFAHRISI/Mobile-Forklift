@@ -192,30 +192,29 @@ class _NewOrderState extends State<NewOrder> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              DropdownButtonFormField<Map<String, dynamic>>(
-                decoration: const InputDecoration(
-                  labelText: 'Pilih Unit Forklift',
-                  border: OutlineInputBorder(),
+              if (_selectedForklift != null)
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Unit yang Dipilih',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text('Nama Unit: ${_selectedForklift!['nama_unit']}'),
+                        Text('Kapasitas: ${_selectedForklift!['kapasitas']}'),
+                        Text(
+                            'Harga: Rp ${_selectedForklift!['harga_per_jam']} / jam'),
+                      ],
+                    ),
+                  ),
                 ),
-                value: _selectedForklift,
-                items: _forklifts.map((forklift) {
-                  return DropdownMenuItem(
-                    value: forklift,
-                    child: Text(forklift['nama_unit']),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedForklift = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null) {
-                    return 'Pilih unit forklift';
-                  }
-                  return null;
-                },
-              ),
               const SizedBox(height: 16),
               DropdownButtonFormField<Map<String, dynamic>>(
                 decoration: const InputDecoration(
