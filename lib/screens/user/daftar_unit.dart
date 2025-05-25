@@ -271,7 +271,7 @@ class _DaftarUnitState extends State<DaftarUnit>
         ),
         const SizedBox(height: 16),
         Text(
-          'Solusi terpercaya untuk material handling',
+          'Sewa Forklift terbaik untuk bisnis anda. Bandingkan Penawaran harga Forklift dari berbagai supplier terbaik. Belanja Order Unit dengan Mudah.',
           style: TextStyle(
             color: Colors.white70,
             fontSize: 16,
@@ -317,7 +317,8 @@ class _DaftarUnitState extends State<DaftarUnit>
                 height: 300, // Adjusted height for a larger image
                 child: _buildCarousel(),
               ),
-              if (_forklifts.isNotEmpty) // Only show arrows if there are forklifts
+              if (_forklifts
+                  .isNotEmpty) // Only show arrows if there are forklifts
                 Positioned(
                   left: 0,
                   child: IconButton(
@@ -330,7 +331,8 @@ class _DaftarUnitState extends State<DaftarUnit>
                     },
                   ),
                 ),
-              if (_forklifts.isNotEmpty) // Only show arrows if there are forklifts
+              if (_forklifts
+                  .isNotEmpty) // Only show arrows if there are forklifts
                 Positioned(
                   right: 0,
                   child: IconButton(
@@ -394,16 +396,18 @@ class _DaftarUnitState extends State<DaftarUnit>
                                 ? CachedNetworkImage(
                                     imageUrl:
                                         'http://192.168.1.19:3000/images/${forklift['gambar']}',
-                                    fit: BoxFit.contain, // Changed to contain for better visibility
+                                    fit: BoxFit
+                                        .contain, // Changed to contain for better visibility
                                     placeholder: (context, url) => Center(
-                                          child: CircularProgressIndicator(
-                                              strokeWidth: 2),
-                                        ),
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2),
+                                    ),
                                     errorWidget: (context, url, error) => Icon(
-                                          Icons.forklift,
-                                          size: 50, // Larger icon for error/placeholder
-                                          color: Colors.grey,
-                                        ),
+                                      Icons.forklift,
+                                      size:
+                                          50, // Larger icon for error/placeholder
+                                      color: Colors.grey,
+                                    ),
                                   )
                                 : Icon(
                                     Icons.forklift,
