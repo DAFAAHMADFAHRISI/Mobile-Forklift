@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PesananService {
   static const String baseUrl = 'http://localhost:3000/api/pesanan';
@@ -88,5 +90,39 @@ class PesananService {
     } catch (e) {
       throw Exception('Error: $e');
     }
+  }
+
+  static Future<bool> submitPesanan({
+    required int idUser,
+    required int idUnit,
+    required int idOperator,
+    required String tanggalMulai,
+    required String tanggalSelesai,
+    required String lokasiPengiriman,
+    required String namaPerusahaan,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final response = await http.post(
+      Uri.parse('http://localhost:3000/api/pesanan/store'),
+      headers: {
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+      body: json.encode({
+        'id_user': idUser,
+        'id_unit': idUnit,
+        'id_operator': idOperator,
+        'tanggal_mulai': tanggalMulai,
+        'tanggal_selesai': tanggalSelesai,
+        'lokasi_pengiriman': lokasiPengiriman,
+        'nama_perusahaan': namaPerusahaan,
+      }),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = json.decode(response.body);
+      return data['status'] == true;
+    }
+    return false;
   }
 }

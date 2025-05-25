@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:forklift_mobile/screens/user/forklift_list.dart';
+import 'package:forklift_mobile/screens/user/daftar_unit.dart';
 
 class About extends StatelessWidget {
   const About({super.key});
@@ -20,301 +21,232 @@ class About extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Header Section with Gradient
-            Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.white, Color(0xFFF8F9FA)],
+            // Forklift Illustration
+            Padding(
+              padding: const EdgeInsets.only(
+                  top: 32, left: 24, right: 24, bottom: 8),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Image.network(
+                  'https://images.pexels.com/photos/1267338/pexels-photo-1267338.jpeg?auto=compress&w=800&q=80',
+                  height: 180,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
                 ),
               ),
-              padding: const EdgeInsets.all(32.0),
-              child: Column(
-                children: [
-                  // App Icon with Shadow
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blue.withOpacity(0.2),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.forklift,
-                      size: 80,
-                      color: Colors.blue.shade600,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Forklift Mobile',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade100,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      'Versi 1.0.0',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.blue.shade700,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
+            ),
+            const SizedBox(height: 16),
+            // App Title
+            const Text(
+              'Forklift Mobile',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+                letterSpacing: 0.5,
               ),
             ),
-
-            // Content Section
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade100,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                'Versi 1.0.0',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.blue.shade700,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Description
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                'Forklift Mobile adalah aplikasi yang memudahkan pengguna dalam mengelola dan memesan layanan forklift. Dengan aplikasi ini, Anda dapat melihat daftar unit forklift yang tersedia, melakukan pemesanan baru, melacak riwayat pemesanan, dan memberikan feedback untuk layanan yang telah digunakan.',
+                style: const TextStyle(
+                    fontSize: 16, height: 1.6, color: Colors.black87),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 32),
+            // Fitur Utama
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Fitur Utama',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue.shade700,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Feature List
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  // Description Card
-                  _buildInfoCard(
-                    title: 'Deskripsi Aplikasi',
-                    icon: Icons.info_outline,
-                    child: const Text(
-                      'Forklift Mobile adalah aplikasi yang memudahkan pengguna dalam mengelola dan memesan layanan forklift. '
-                      'Dengan aplikasi ini, Anda dapat melihat daftar unit forklift yang tersedia, melakukan pemesanan baru, '
-                      'melacak riwayat pemesanan, dan memberikan feedback untuk layanan yang telah digunakan.',
-                      style: TextStyle(
-                        fontSize: 16,
-                        height: 1.6,
-                        color: Colors.black87,
-                      ),
+                  _buildFeatureListItem(
+                    icon: Icons.person_outline,
+                    title: 'Profil Pengguna',
+                    description: 'Kelola informasi profil Anda',
+                    color: Colors.blue,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DaftarUnit(),
+                        ),
+                      );
+                    },
+                    child: _buildFeatureListItem(
+                      icon: Icons.list_alt,
+                      title: 'Daftar Unit',
+                      description: 'Lihat daftar unit forklift yang tersedia',
+                      color: Colors.green,
                     ),
                   ),
-
-                  const SizedBox(height: 24),
-
-                  // Features Card
-                  _buildInfoCard(
-                    title: 'Fitur Utama',
-                    icon: Icons.star_outline,
-                    child: Column(
-                      children: [
-                        _buildFeatureItem(
-                          Icons.person_outline,
-                          'Profil Pengguna',
-                          'Kelola informasi profil Anda',
-                          Colors.blue,
-                        ),
-                        _buildFeatureItem(
-                          Icons.list_alt,
-                          'Daftar Unit',
-                          'Lihat daftar unit forklift yang tersedia',
-                          Colors.green,
-                        ),
-                        _buildFeatureItem(
-                          Icons.add_circle_outline,
-                          'Pemesanan Baru',
-                          'Buat pemesanan forklift baru',
-                          Colors.orange,
-                        ),
-                        _buildFeatureItem(
-                          Icons.history,
-                          'Riwayat Pemesanan',
-                          'Lihat riwayat pemesanan Anda',
-                          Colors.purple,
-                        ),
-                        _buildFeatureItem(
-                          Icons.feedback_outlined,
-                          'Feedback',
-                          'Berikan masukan untuk layanan kami',
-                          Colors.red,
-                        ),
-                      ],
-                    ),
+                  _buildFeatureListItem(
+                    icon: Icons.add_circle_outline,
+                    title: 'Pemesanan Baru',
+                    description: 'Buat pemesanan forklift baru',
+                    color: Colors.orange,
                   ),
-
-                  const SizedBox(height: 24),
-
-                  // Contact Card
-                  _buildInfoCard(
-                    title: 'Kontak',
-                    icon: Icons.contact_support_outlined,
-                    child: Column(
-                      children: [
-                        _buildContactItem(
-                          Icons.email_outlined,
-                          'Email',
-                          'support@forklift.com',
-                          Colors.red,
-                        ),
-                        _buildContactItem(
-                          Icons.phone_outlined,
-                          'Telepon',
-                          '(021) 1234-5678',
-                          Colors.green,
-                        ),
-                        _buildContactItem(
-                          Icons.location_on_outlined,
-                          'Alamat',
-                          'Jakarta, Indonesia',
-                          Colors.blue,
-                        ),
-                      ],
-                    ),
+                  _buildFeatureListItem(
+                    icon: Icons.history,
+                    title: 'Riwayat Pemesanan',
+                    description: 'Lihat riwayat pemesanan Anda',
+                    color: Colors.purple,
                   ),
-
-                  const SizedBox(height: 32),
-
-                  // Action Button
-                  Container(
-                    width: double.infinity,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.blue.shade600, Colors.blue.shade700],
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blue.withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ForkliftList(),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.shopping_cart, color: Colors.white),
-                          SizedBox(width: 8),
-                          Text(
-                            'Ingin Melakukan Pemesanan?',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  _buildFeatureListItem(
+                    icon: Icons.feedback_outlined,
+                    title: 'Feedback',
+                    description: 'Berikan masukan untuk layanan kami',
+                    color: Colors.red,
                   ),
-
-                  const SizedBox(height: 32),
                 ],
               ),
             ),
+            const SizedBox(height: 32),
+            // Kontak
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Kontak',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue.shade700,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                  _buildContactListItem(
+                    icon: Icons.email_outlined,
+                    label: 'Email',
+                    value: 'support@forklift.com',
+                    color: Colors.red,
+                  ),
+                  _buildContactListItem(
+                    icon: Icons.phone_outlined,
+                    label: 'Telepon',
+                    value: '(021) 1234-5678',
+                    color: Colors.green,
+                  ),
+                  _buildContactListItem(
+                    icon: Icons.location_on_outlined,
+                    label: 'Alamat',
+                    value: 'Jakarta, Indonesia',
+                    color: Colors.blue,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 36),
+            // Action Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ForkliftList(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade700,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.shopping_cart, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text(
+                        'Ingin Melakukan Pemesanan?',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildInfoCard({
-    required String title,
+  Widget _buildFeatureListItem({
     required IconData icon,
-    required Widget child,
+    required String title,
+    required String description,
+    required Color color,
   }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18.0),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  icon,
-                  color: Colors.blue.shade600,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          child,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFeatureItem(
-    IconData icon,
-    String title,
-    String description,
-    Color color,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+              color: color.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 20,
-            ),
+            child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -346,51 +278,42 @@ class About extends StatelessWidget {
     );
   }
 
-  Widget _buildContactItem(
-    IconData icon,
-    String label,
-    String value,
-    Color color,
-  ) {
+  Widget _buildContactListItem({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
+      padding: const EdgeInsets.only(bottom: 14.0),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
+              color: color.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 20,
-            ),
+            child: Icon(icon, color: color, size: 22),
           ),
           const SizedBox(width: 16),
+          Text(
+            label + ':',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey.shade700,
+            ),
+          ),
+          const SizedBox(width: 8),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black54,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
             ),
           ),
         ],
