@@ -15,6 +15,7 @@ class _ForkliftListState extends State<ForkliftList> {
   List<Map<String, dynamic>> _forklifts = [];
   bool _isLoading = true;
   String? _error;
+  final Color maroonColor = const Color(0xFF800000);
 
   @override
   void initState() {
@@ -43,7 +44,6 @@ class _ForkliftListState extends State<ForkliftList> {
 
   @override
   Widget build(BuildContext context) {
-    const orange = Color(0xFFFF9800);
     return WillPopScope(
       onWillPop: () async {
         Navigator.pushReplacement(
@@ -53,10 +53,19 @@ class _ForkliftListState extends State<ForkliftList> {
         return false;
       },
       child: Scaffold(
+        backgroundColor: Colors.grey[50],
         appBar: AppBar(
-          title: const Text('Daftar Unit Forklift'),
+          title: const Text(
+            'Daftar Unit Forklift',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: maroonColor,
+          elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
               Navigator.pushReplacement(
                 context,
@@ -68,7 +77,27 @@ class _ForkliftListState extends State<ForkliftList> {
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _error != null
-                ? Center(child: Text('Error: $_error'))
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 48,
+                          color: Colors.red[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error: $_error',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  )
                 : RefreshIndicator(
                     onRefresh: _loadAvailableForklifts,
                     child: ListView.builder(
@@ -129,17 +158,31 @@ class _ForkliftListState extends State<ForkliftList> {
                                         ),
                                       ),
                                       const SizedBox(height: 2),
-                                      Text(
-                                        forklift['status'] == 'tersedia'
-                                            ? 'Tersedia'
-                                            : 'Disewa',
-                                        style: TextStyle(
-                                          color:
-                                              forklift['status'] == 'tersedia'
-                                                  ? Colors.green
-                                                  : Colors.red,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 13,
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: forklift['status'] ==
+                                                  'tersedia'
+                                              ? Colors.green.withOpacity(0.1)
+                                              : Colors.red.withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                        ),
+                                        child: Text(
+                                          forklift['status'] == 'tersedia'
+                                              ? 'Tersedia'
+                                              : 'Disewa',
+                                          style: TextStyle(
+                                            color:
+                                                forklift['status'] == 'tersedia'
+                                                    ? Colors.green
+                                                    : Colors.red,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(height: 4),
@@ -156,8 +199,8 @@ class _ForkliftListState extends State<ForkliftList> {
                                       ),
                                       Text(
                                         'Rp ${forklift['harga_per_jam'] ?? '-'} / Jam',
-                                        style: const TextStyle(
-                                          color: orange,
+                                        style: TextStyle(
+                                          color: maroonColor,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 15,
                                         ),
@@ -179,7 +222,7 @@ class _ForkliftListState extends State<ForkliftList> {
                                           width: double.infinity,
                                           child: ElevatedButton(
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: orange,
+                                              backgroundColor: maroonColor,
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(8),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:forklift_mobile/screens/user/forklift_list.dart';
 import 'package:forklift_mobile/screens/user/daftar_unit.dart';
+import 'package:forklift_mobile/screens/user/order_history.dart';
 
 class About extends StatelessWidget {
   const About({super.key});
@@ -125,11 +126,21 @@ class About extends StatelessWidget {
                     description: 'Buat pemesanan forklift baru',
                     color: Colors.orange,
                   ),
-                  _buildFeatureListItem(
-                    icon: Icons.history,
-                    title: 'Riwayat Pemesanan',
-                    description: 'Lihat riwayat pemesanan Anda',
-                    color: Colors.purple,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const OrderHistory(),
+                        ),
+                      );
+                    },
+                    child: _buildFeatureListItem(
+                      icon: Icons.history,
+                      title: 'Riwayat Pemesanan',
+                      description: 'Lihat riwayat pemesanan Anda',
+                      color: Colors.purple,
+                    ),
                   ),
                   _buildFeatureListItem(
                     icon: Icons.feedback_outlined,

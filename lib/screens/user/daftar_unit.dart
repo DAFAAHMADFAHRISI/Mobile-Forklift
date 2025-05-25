@@ -14,6 +14,7 @@ class _DaftarUnitState extends State<DaftarUnit> {
   List<Map<String, dynamic>> _forklifts = [];
   bool _isLoading = true;
   String? _error;
+  final Color maroonColor = const Color(0xFF800000);
 
   @override
   void initState() {
@@ -42,15 +43,43 @@ class _DaftarUnitState extends State<DaftarUnit> {
 
   @override
   Widget build(BuildContext context) {
-    const orange = Color(0xFFFF9800);
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Daftar Unit Forklift'),
+        title: const Text(
+          'Daftar Unit Forklift',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: maroonColor,
+        elevation: 0,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(child: Text('Error: $_error'))
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 48,
+                        color: Colors.red[400],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Error: $_error',
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                )
               : RefreshIndicator(
                   onRefresh: _loadAvailableForklifts,
                   child: ListView.builder(
@@ -109,16 +138,29 @@ class _DaftarUnitState extends State<DaftarUnit> {
                                       ),
                                     ),
                                     const SizedBox(height: 2),
-                                    Text(
-                                      forklift['status'] == 'tersedia'
-                                          ? 'Tersedia'
-                                          : 'Disewa',
-                                      style: TextStyle(
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
                                         color: forklift['status'] == 'tersedia'
-                                            ? Colors.green
-                                            : Colors.red,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 13,
+                                            ? Colors.green.withOpacity(0.1)
+                                            : Colors.red.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Text(
+                                        forklift['status'] == 'tersedia'
+                                            ? 'Tersedia'
+                                            : 'Disewa',
+                                        style: TextStyle(
+                                          color:
+                                              forklift['status'] == 'tersedia'
+                                                  ? Colors.green
+                                                  : Colors.red,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 13,
+                                        ),
                                       ),
                                     ),
                                     const SizedBox(height: 4),
@@ -135,8 +177,8 @@ class _DaftarUnitState extends State<DaftarUnit> {
                                     ),
                                     Text(
                                       'Rp ${forklift['harga_per_jam'] ?? '-'} / Jam',
-                                      style: const TextStyle(
-                                        color: orange,
+                                      style: TextStyle(
+                                        color: maroonColor,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15,
                                       ),
@@ -158,7 +200,7 @@ class _DaftarUnitState extends State<DaftarUnit> {
                                         width: double.infinity,
                                         child: ElevatedButton(
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: orange,
+                                            backgroundColor: maroonColor,
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(8),
@@ -181,6 +223,11 @@ class _DaftarUnitState extends State<DaftarUnit> {
                                                     child: const Text('Batal'),
                                                   ),
                                                   ElevatedButton(
+                                                    style: ElevatedButton
+                                                        .styleFrom(
+                                                      backgroundColor:
+                                                          maroonColor,
+                                                    ),
                                                     onPressed: () {
                                                       Navigator.pop(context);
                                                       Navigator.push(

@@ -4,8 +4,6 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:image_picker_web/image_picker_web.dart';
 import 'dart:typed_data';
 
 class Pembayaran extends StatefulWidget {
@@ -54,50 +52,26 @@ class _PembayaranState extends State<Pembayaran> {
   }
 
   Future<void> _pickBuktiPembayaran() async {
-    if (kIsWeb) {
-      final mediaData = await ImagePickerWeb.getImageAsBytes();
-      if (mediaData != null) {
-        setState(() {
-          _buktiPembayaranBytes = mediaData;
-          _buktiPembayaranName = "bukti_pembayaran.png";
-        });
-      }
-    } else {
-      final ImagePicker picker = ImagePicker();
-      final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
-      if (picked != null) {
-        final allowed = ['.png', '.jpg', '.jpeg'];
-        if (!allowed.any((ext) => picked.name.toLowerCase().endsWith(ext))) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Format file harus .png, .jpg, atau .jpeg')),
-          );
-          return;
-        }
-        setState(() {
-          _buktiPembayaran = picked;
-        });
-      }
-    }
-  }
-
-  Future<void> _submitPembayaran() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (kIsWeb &&
-        _buktiPembayaranBytes != null &&
-        _buktiPembayaranName != null) {
+    final ImagePicker picker = ImagePicker();
+    final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
       final allowed = ['.png', '.jpg', '.jpeg'];
-      if (!allowed
-          .any((ext) => _buktiPembayaranName!.toLowerCase().endsWith(ext))) {
+      if (!allowed.any((ext) => picked.name.toLowerCase().endsWith(ext))) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text('Format file harus .png, .jpg, atau .jpeg')),
         );
         return;
       }
+      setState(() {
+        _buktiPembayaran = picked;
+      });
     }
-    if ((kIsWeb && _buktiPembayaranBytes == null) ||
-        (!kIsWeb && _buktiPembayaran == null)) {
+  }
+
+  Future<void> _submitPembayaran() async {
+    if (!_formKey.currentState!.validate()) return;
+    if (_buktiPembayaran == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Bukti pembayaran wajib diupload!')),
       );
@@ -114,19 +88,11 @@ class _PembayaranState extends State<Pembayaran> {
       request.fields['jumlah'] = _jumlahController.text;
       request.fields['metode'] = _metodeController.text;
       request.fields['tanggal_pembayaran'] = _tanggalController.text;
-      if (kIsWeb) {
-        request.files.add(http.MultipartFile.fromBytes(
-          'bukti_pembayaran',
-          _buktiPembayaranBytes!,
-          filename: _buktiPembayaranName ?? 'bukti_pembayaran.png',
-        ));
-      } else {
-        request.files.add(await http.MultipartFile.fromPath(
-          'bukti_pembayaran',
-          _buktiPembayaran!.path,
-          filename: _buktiPembayaran!.name,
-        ));
-      }
+      request.files.add(await http.MultipartFile.fromPath(
+        'bukti_pembayaran',
+        _buktiPembayaran!.path,
+        filename: _buktiPembayaran!.name,
+      ));
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
       final data = json.decode(response.body);
@@ -217,13 +183,9 @@ class _PembayaranState extends State<Pembayaran> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      kIsWeb
-                          ? (_buktiPembayaranBytes != null
-                              ? (_buktiPembayaranName ?? 'bukti_pembayaran.png')
-                              : 'Belum ada file')
-                          : (_buktiPembayaran != null
-                              ? _buktiPembayaran!.name
-                              : 'Belum ada file'),
+                      _buktiPembayaran != null
+                          ? _buktiPembayaran!.name
+                          : 'Belum ada file',
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),

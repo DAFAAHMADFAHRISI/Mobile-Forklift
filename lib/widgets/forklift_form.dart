@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker_web/image_picker_web.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:cross_file/cross_file.dart';
 import '../services/forklift_service.dart';
 
@@ -36,17 +36,12 @@ class _ForkliftFormState extends State<ForkliftForm> {
   }
 
   Future<void> _pickImage() async {
-    final file = await ImagePickerWeb.getImageAsFile();
-    if (file != null && file.runtimeType.toString() == 'XFile') {
+    final ImagePicker picker = ImagePicker();
+    final XFile? picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
       setState(() {
-        _pickedImage = file as XFile;
+        _pickedImage = picked;
       });
-    } else if (file != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                'Gagal memilih gambar: browser atau package tidak mendukung XFile.')),
-      );
     }
   }
 
