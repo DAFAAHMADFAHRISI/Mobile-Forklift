@@ -20,7 +20,13 @@ class _DaftarState extends State<Daftar> {
   final _noHpController = TextEditingController();
   final _alamatController = TextEditingController();
   bool _isLoading = false;
-  final Color maroonColor = const Color(0xFF800000);
+
+  // Define custom colors
+  static const Color darkNavy = Color(0xFF1A1D29);
+  static const Color deepPurple = Color(0xFF2D1B69);
+  static const Color materialPink = Color(0xFFE91E63);
+  static const Color materialPurple = Color(0xFF9C27B0);
+  static const Color lightGray = Color(0xFFF8F9FA);
 
   @override
   void dispose() {
@@ -37,7 +43,7 @@ class _DaftarState extends State<Daftar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: lightGray,
       appBar: AppBar(
         title: const Text(
           'Daftar Akun',
@@ -46,7 +52,7 @@ class _DaftarState extends State<Daftar> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: maroonColor,
+        backgroundColor: darkNavy,
         elevation: 0,
       ),
       body: Container(
@@ -55,8 +61,8 @@ class _DaftarState extends State<Daftar> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              maroonColor.withOpacity(0.1),
-              Colors.white,
+              darkNavy,
+              deepPurple,
             ],
           ),
         ),
@@ -74,7 +80,7 @@ class _DaftarState extends State<Daftar> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: maroonColor.withOpacity(0.2),
+                          color: Colors.white.withOpacity(0.2),
                           blurRadius: 10,
                           spreadRadius: 2,
                         ),
@@ -89,216 +95,51 @@ class _DaftarState extends State<Daftar> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                TextFormField(
-                  controller: _namaController,
-                  decoration: InputDecoration(
-                    labelText: 'Nama Lengkap',
-                    labelStyle: TextStyle(color: maroonColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: maroonColor),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.13),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.13),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          BorderSide(color: maroonColor.withOpacity(0.5)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: maroonColor, width: 2),
-                    ),
-                    prefixIcon: Icon(Icons.person_outline, color: maroonColor),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.10),
+                        blurRadius: 16,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Nama lengkap harus diisi';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    labelStyle: TextStyle(color: maroonColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: maroonColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          BorderSide(color: maroonColor.withOpacity(0.5)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: maroonColor, width: 2),
-                    ),
-                    prefixIcon: Icon(Icons.email_outlined, color: maroonColor),
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    children: [
+                      _buildTextField(_namaController, 'Nama Lengkap',
+                          Icons.person_outline),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                          _emailController, 'Email', Icons.email_outlined,
+                          keyboardType: TextInputType.emailAddress),
+                      const SizedBox(height: 16),
+                      _buildTextField(_usernameController, 'Username',
+                          Icons.account_circle_outlined),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                          _passwordController, 'Kata Sandi', Icons.lock_outline,
+                          obscureText: true),
+                      const SizedBox(height: 16),
+                      _buildTextField(_konfirmasiPasswordController,
+                          'Konfirmasi Kata Sandi', Icons.lock_outline,
+                          obscureText: true),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                          _noHpController, 'Nomor HP', Icons.phone_outlined,
+                          keyboardType: TextInputType.phone),
+                      const SizedBox(height: 16),
+                      _buildTextField(_alamatController, 'Alamat',
+                          Icons.location_on_outlined,
+                          maxLines: 3),
+                    ],
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Email harus diisi';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Email tidak valid';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    labelText: 'Username',
-                    labelStyle: TextStyle(color: maroonColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: maroonColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          BorderSide(color: maroonColor.withOpacity(0.5)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: maroonColor, width: 2),
-                    ),
-                    prefixIcon:
-                        Icon(Icons.account_circle_outlined, color: maroonColor),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Username harus diisi';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    labelText: 'Kata Sandi',
-                    labelStyle: TextStyle(color: maroonColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: maroonColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          BorderSide(color: maroonColor.withOpacity(0.5)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: maroonColor, width: 2),
-                    ),
-                    prefixIcon: Icon(Icons.lock_outline, color: maroonColor),
-                  ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Kata sandi harus diisi';
-                    }
-                    if (value.length < 6) {
-                      return 'Kata sandi minimal 6 karakter';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _konfirmasiPasswordController,
-                  decoration: InputDecoration(
-                    labelText: 'Konfirmasi Kata Sandi',
-                    labelStyle: TextStyle(color: maroonColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: maroonColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          BorderSide(color: maroonColor.withOpacity(0.5)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: maroonColor, width: 2),
-                    ),
-                    prefixIcon: Icon(Icons.lock_outline, color: maroonColor),
-                  ),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Konfirmasi kata sandi harus diisi';
-                    }
-                    if (value != _passwordController.text) {
-                      return 'Kata sandi tidak cocok';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _noHpController,
-                  decoration: InputDecoration(
-                    labelText: 'Nomor HP',
-                    labelStyle: TextStyle(color: maroonColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: maroonColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          BorderSide(color: maroonColor.withOpacity(0.5)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: maroonColor, width: 2),
-                    ),
-                    prefixIcon: Icon(Icons.phone_outlined, color: maroonColor),
-                  ),
-                  keyboardType: TextInputType.phone,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Nomor HP harus diisi';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _alamatController,
-                  decoration: InputDecoration(
-                    labelText: 'Alamat',
-                    labelStyle: TextStyle(color: maroonColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: maroonColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          BorderSide(color: maroonColor.withOpacity(0.5)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: maroonColor, width: 2),
-                    ),
-                    prefixIcon:
-                        Icon(Icons.location_on_outlined, color: maroonColor),
-                  ),
-                  maxLines: 3,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Alamat harus diisi';
-                    }
-                    return null;
-                  },
                 ),
                 const SizedBox(height: 32),
                 SizedBox(
@@ -306,7 +147,7 @@ class _DaftarState extends State<Daftar> {
                   height: 50,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: maroonColor,
+                      backgroundColor: materialPink,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -403,7 +244,7 @@ class _DaftarState extends State<Daftar> {
                     Text(
                       'Sudah punya akun?',
                       style: TextStyle(
-                        color: Colors.grey[700],
+                        color: Colors.white.withOpacity(0.7),
                       ),
                     ),
                     TextButton(
@@ -414,10 +255,10 @@ class _DaftarState extends State<Daftar> {
                               builder: (context) => const Masuk()),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'Masuk',
                         style: TextStyle(
-                          color: maroonColor,
+                          color: materialPink,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -429,6 +270,69 @@ class _DaftarState extends State<Daftar> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(
+      TextEditingController controller, String label, IconData icon,
+      {bool obscureText = false,
+      TextInputType keyboardType = TextInputType.text,
+      int maxLines = 1}) {
+    return TextFormField(
+      controller: controller,
+      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+      cursorColor: materialPink,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
+        hintText: label,
+        hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.08),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.13)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: materialPink, width: 2),
+        ),
+        prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      ),
+      validator: (value) {
+        if (label == 'Nama Lengkap' && (value == null || value.isEmpty)) {
+          return 'Nama lengkap harus diisi';
+        }
+        if (label == 'Email') {
+          if (value == null || value.isEmpty) return 'Email harus diisi';
+          if (!value.contains('@')) return 'Email tidak valid';
+        }
+        if (label == 'Username' && (value == null || value.isEmpty)) {
+          return 'Username harus diisi';
+        }
+        if (label == 'Kata Sandi') {
+          if (value == null || value.isEmpty) return 'Kata sandi harus diisi';
+          if (value.length < 6) return 'Kata sandi minimal 6 karakter';
+        }
+        if (label == 'Konfirmasi Kata Sandi') {
+          if (value == null || value.isEmpty)
+            return 'Konfirmasi kata sandi harus diisi';
+          if (value != _passwordController.text)
+            return 'Kata sandi tidak cocok';
+        }
+        if (label == 'Nomor HP' && (value == null || value.isEmpty)) {
+          return 'Nomor HP harus diisi';
+        }
+        if (label == 'Alamat' && (value == null || value.isEmpty)) {
+          return 'Alamat harus diisi';
+        }
+        return null;
+      },
     );
   }
 }

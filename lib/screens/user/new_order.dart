@@ -28,6 +28,13 @@ class _NewOrderState extends State<NewOrder> {
 
   bool _isUploading = false;
 
+  // Define custom colors
+  static const Color darkNavy = Color(0xFF1A1D29);
+  static const Color deepPurple = Color(0xFF2D1B69);
+  static const Color materialPink = Color(0xFFE91E63);
+  static const Color materialPurple = Color(0xFF9C27B0);
+  static const Color lightGray = Color(0xFFF8F9FA);
+
   @override
   void initState() {
     super.initState();
@@ -176,21 +183,7 @@ class _NewOrderState extends State<NewOrder> {
     print(_selectedOperator);
     setState(() => _isUploading = true);
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final idUser = prefs.getInt('id_user') ?? 0;
-      if (idUser == 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('User tidak ditemukan, silakan login ulang'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        setState(() => _isUploading = false);
-        return;
-      }
-
-      final success = await PesananService.submitPesanan(
-        idUser: idUser,
+      final response = await PesananService.submitPesanan(
         idUnit: _getIdForklift(),
         idOperator: _getIdOperator(),
         tanggalMulai: _tanggalMulai!.toIso8601String().split('T').first,
@@ -199,24 +192,42 @@ class _NewOrderState extends State<NewOrder> {
         namaPerusahaan: _perusahaanController.text,
       );
 
-      if (success) {
-        if (mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Pembayaran(
-                jumlah: _calculateTotal(),
-                metode: 'Transfer Bank',
-                tanggalPembayaran: DateTime.now(),
+      if (response != null && response['status'] == true) {
+        final idPemesanan = response['id_pemesanan'] ??
+            (response['data'] != null
+                ? response['data']['id_pemesanan']
+                : null);
+        if (idPemesanan != null) {
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Pembayaran(
+                  jumlah: _calculateTotal(),
+                  metode: 'Transfer Bank',
+                  tanggalPembayaran: DateTime.now(),
+                  idPemesanan: idPemesanan,
+                ),
               ),
-            ),
-          );
+            );
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                    'Gagal membuat pemesanan: id_pemesanan tidak ditemukan'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Gagal membuat pemesanan'),
+            SnackBar(
+              content: Text(
+                  'Gagal membuat pemesanan: ${response != null && response['message'] != null ? response['message'] : ''}'),
               backgroundColor: Colors.red,
             ),
           );
@@ -249,12 +260,19 @@ class _NewOrderState extends State<NewOrder> {
         return false;
       },
       child: Scaffold(
+        backgroundColor: lightGray,
         appBar: AppBar(
-          title: const Text('Pemesanan Baru',
-              style: TextStyle(fontWeight: FontWeight.bold)),
-          backgroundColor: Color(0xFFFFA500),
+          title: const Text(
+            'Pemesanan Baru',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: darkNavy,
+          elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () {
               Navigator.pushReplacement(
                 context,
@@ -264,7 +282,16 @@ class _NewOrderState extends State<NewOrder> {
           ),
         ),
         body: Container(
-          color: const Color(0xFFF7F7F7),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                darkNavy,
+                deepPurple,
+              ],
+            ),
+          ),
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Form(
@@ -273,73 +300,124 @@ class _NewOrderState extends State<NewOrder> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (_selectedForklift != null)
-                    Card(
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.1),
+                        ),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Unit yang Dipilih',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16)),
+                            const Text(
+                              'Unit yang Dipilih',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
                             const SizedBox(height: 8),
                             Text(
-                                'Nama Unit: ${_selectedForklift!['nama_unit']}',
-                                style: TextStyle(fontSize: 15)),
-                            Text('Kapasitas: ${_getKapasitas()}',
-                                style: TextStyle(fontSize: 15)),
+                              'Nama Unit: ${_selectedForklift!['nama_unit']}',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white.withOpacity(0.7),
+                              ),
+                            ),
                             Text(
-                                'Harga: Rp ${_getHargaPerJam() > 0 ? _getHargaPerJam() : 'Tidak tersedia'} / jam',
-                                style: TextStyle(fontSize: 15)),
+                              'Kapasitas: ${_getKapasitas()}',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white.withOpacity(0.7),
+                              ),
+                            ),
+                            Text(
+                              'Harga: Rp ${_getHargaPerJam() > 0 ? _getHargaPerJam() : 'Tidak tersedia'} / jam',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white.withOpacity(0.7),
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     ),
                   const SizedBox(height: 18),
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Pilih Operator',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          const Text(
+                            'Pilih Operator',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                           const SizedBox(height: 8),
                           Row(
                             children: [
                               Expanded(
                                 child: _selectedOperator == null
-                                    ? const Text('Belum ada operator dipilih',
-                                        style: TextStyle(color: Colors.grey))
+                                    ? Text(
+                                        'Belum ada operator dipilih',
+                                        style: TextStyle(
+                                          color: Colors.white.withOpacity(0.7),
+                                        ),
+                                      )
                                     : Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                              'Nama: ${_selectedOperator!['nama_operator']}',
-                                              style: TextStyle(fontSize: 15)),
+                                            'Nama: ${_selectedOperator!['nama_operator']}',
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              color:
+                                                  Colors.white.withOpacity(0.7),
+                                            ),
+                                          ),
                                           Text(
-                                              'No HP: ${_selectedOperator!['no_hp']}',
-                                              style: TextStyle(fontSize: 15)),
+                                            'No HP: ${_selectedOperator!['no_hp']}',
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              color:
+                                                  Colors.white.withOpacity(0.7),
+                                            ),
+                                          ),
                                           Text(
-                                              'Status: ${_selectedOperator!['status']}',
-                                              style: TextStyle(fontSize: 15)),
+                                            'Status: ${_selectedOperator!['status']}',
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              color:
+                                                  Colors.white.withOpacity(0.7),
+                                            ),
+                                          ),
                                         ],
                                       ),
                               ),
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFFFFA500),
+                                  backgroundColor: materialPink,
                                   foregroundColor: Colors.white,
-                                  minimumSize: Size(80, 40),
+                                  minimumSize: const Size(80, 40),
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8)),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
                                 onPressed: () async {
                                   final result = await Navigator.push(
@@ -365,10 +443,14 @@ class _NewOrderState extends State<NewOrder> {
                     ),
                   ),
                   const SizedBox(height: 18),
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -376,30 +458,50 @@ class _NewOrderState extends State<NewOrder> {
                         children: [
                           ListTile(
                             contentPadding: EdgeInsets.zero,
-                            title: const Text('Tanggal Mulai',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            title: const Text(
+                              'Tanggal Mulai',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                             subtitle: Text(
                               _tanggalMulai == null
                                   ? 'Pilih tanggal'
                                   : '${_tanggalMulai!.day}/${_tanggalMulai!.month}/${_tanggalMulai!.year}',
-                              style: TextStyle(fontSize: 15),
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white.withOpacity(0.7),
+                              ),
                             ),
-                            trailing: const Icon(Icons.calendar_today,
-                                color: Color(0xFFFFA500)),
+                            trailing: const Icon(
+                              Icons.calendar_today,
+                              color: materialPink,
+                            ),
                             onTap: () => _selectDate(context, true),
                           ),
                           ListTile(
                             contentPadding: EdgeInsets.zero,
-                            title: const Text('Tanggal Selesai',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            title: const Text(
+                              'Tanggal Selesai',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                             subtitle: Text(
                               _tanggalSelesai == null
                                   ? 'Pilih tanggal'
                                   : '${_tanggalSelesai!.day}/${_tanggalSelesai!.month}/${_tanggalSelesai!.year}',
-                              style: TextStyle(fontSize: 15),
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white.withOpacity(0.7),
+                              ),
                             ),
-                            trailing: const Icon(Icons.calendar_today,
-                                color: Color(0xFFFFA500)),
+                            trailing: const Icon(
+                              Icons.calendar_today,
+                              color: materialPink,
+                            ),
                             onTap: () => _selectDate(context, false),
                           ),
                         ],
@@ -407,23 +509,54 @@ class _NewOrderState extends State<NewOrder> {
                     ),
                   ),
                   const SizedBox(height: 18),
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Lokasi Pengiriman',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          const Text(
+                            'Lokasi Pengiriman',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _lokasiController,
-                            decoration: const InputDecoration(
+                            style: const TextStyle(color: Colors.black87),
+                            cursorColor: Colors.black87,
+                            decoration: InputDecoration(
                               hintText: 'Masukkan lokasi pengiriman',
-                              border: OutlineInputBorder(),
+                              hintStyle: TextStyle(
+                                color: Colors.white.withOpacity(0.5),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Colors.white.withOpacity(0.1),
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Colors.white.withOpacity(0.1),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(
+                                  color: materialPink,
+                                ),
+                              ),
                             ),
                             maxLines: 2,
                             validator: (value) {
@@ -438,23 +571,54 @@ class _NewOrderState extends State<NewOrder> {
                     ),
                   ),
                   const SizedBox(height: 18),
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Nama Perusahaan',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          const Text(
+                            'Nama Perusahaan',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _perusahaanController,
-                            decoration: const InputDecoration(
+                            style: const TextStyle(color: Colors.black87),
+                            cursorColor: Colors.black87,
+                            decoration: InputDecoration(
                               hintText: 'Masukkan nama perusahaan',
-                              border: OutlineInputBorder(),
+                              hintStyle: TextStyle(
+                                color: Colors.white.withOpacity(0.5),
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Colors.white.withOpacity(0.1),
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Colors.white.withOpacity(0.1),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(
+                                  color: materialPink,
+                                ),
+                              ),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -468,42 +632,76 @@ class _NewOrderState extends State<NewOrder> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  Card(
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                    ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Ringkasan Pemesanan',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18)),
+                          const Text(
+                            'Ringkasan Pemesanan',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                          ),
                           const SizedBox(height: 16),
                           if (_selectedForklift != null) ...[
-                            Text('Unit: ${_selectedForklift!['nama_unit']}',
-                                style: TextStyle(fontSize: 15)),
-                            Text('Kapasitas: ${_getKapasitas()}',
-                                style: TextStyle(fontSize: 15)),
                             Text(
-                                'Harga: Rp ${_getHargaPerJam() > 0 ? _getHargaPerJam() : 'Tidak tersedia'} / jam',
-                                style: TextStyle(fontSize: 15)),
+                              'Unit: ${_selectedForklift!['nama_unit']}',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white.withOpacity(0.7),
+                              ),
+                            ),
+                            Text(
+                              'Kapasitas: ${_getKapasitas()}',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white.withOpacity(0.7),
+                              ),
+                            ),
+                            Text(
+                              'Harga: Rp ${_getHargaPerJam() > 0 ? _getHargaPerJam() : 'Tidak tersedia'} / jam',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white.withOpacity(0.7),
+                              ),
+                            ),
                           ],
                           if (_selectedOperator != null)
                             Text(
-                                'Operator: ${_selectedOperator!['nama_operator']}',
-                                style: TextStyle(fontSize: 15)),
+                              'Operator: ${_selectedOperator!['nama_operator']}',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white.withOpacity(0.7),
+                              ),
+                            ),
                           if (_tanggalMulai != null &&
                               _tanggalSelesai != null) ...[
                             Text(
-                                'Durasi: ${_tanggalSelesai!.difference(_tanggalMulai!).inHours} jam',
-                                style: TextStyle(fontSize: 15)),
-                            Text('Total: Rp ${_calculateTotal()}',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green[700],
-                                    fontSize: 16)),
+                              'Durasi: ${_tanggalSelesai!.difference(_tanggalMulai!).inHours} jam',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.white.withOpacity(0.7),
+                              ),
+                            ),
+                            Text(
+                              'Total: Rp ${_calculateTotal()}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: materialPink,
+                                fontSize: 16,
+                              ),
+                            ),
                           ],
                         ],
                       ),
@@ -515,25 +713,30 @@ class _NewOrderState extends State<NewOrder> {
                     child: ElevatedButton(
                       onPressed: _isUploading ? null : _submitOrder,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFFFA500),
+                        backgroundColor: materialPink,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         textStyle: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       child: _isUploading
                           ? const SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white))
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
                           : const Text('Buat Pemesanan'),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Error message area
                   if (_calculateTotal() == 0 &&
                       _tanggalMulai != null &&
                       _tanggalSelesai != null)
@@ -542,13 +745,18 @@ class _NewOrderState extends State<NewOrder> {
                       padding: const EdgeInsets.all(12),
                       margin: const EdgeInsets.only(top: 8),
                       decoration: BoxDecoration(
-                        color: Colors.red[400],
+                        color: Colors.red.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Colors.red.withOpacity(0.3),
+                        ),
                       ),
                       child: const Text(
                         'Durasi pemesanan tidak valid',
                         style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),

@@ -92,8 +92,7 @@ class PesananService {
     }
   }
 
-  static Future<bool> submitPesanan({
-    required int idUser,
+  static Future<Map<String, dynamic>?> submitPesanan({
     required int idUnit,
     required int idOperator,
     required String tanggalMulai,
@@ -110,7 +109,6 @@ class PesananService {
         if (token != null) 'Authorization': 'Bearer $token',
       },
       body: json.encode({
-        'id_user': idUser,
         'id_unit': idUnit,
         'id_operator': idOperator,
         'tanggal_mulai': tanggalMulai,
@@ -121,8 +119,8 @@ class PesananService {
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = json.decode(response.body);
-      return data['status'] == true;
+      return data;
     }
-    return false;
+    return null;
   }
 }

@@ -11,16 +11,38 @@ class ForkliftList extends StatefulWidget {
   State<ForkliftList> createState() => _ForkliftListState();
 }
 
-class _ForkliftListState extends State<ForkliftList> {
+class _ForkliftListState extends State<ForkliftList>
+    with TickerProviderStateMixin {
   List<Map<String, dynamic>> _forklifts = [];
   bool _isLoading = true;
   String? _error;
-  final Color maroonColor = const Color(0xFF800000);
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+
+  // Define custom colors
+  static const Color darkNavy = Color(0xFF1A1D29);
+  static const Color deepPurple = Color(0xFF2D1B69);
+  static const Color materialPink = Color(0xFFE91E63);
+  static const Color materialPurple = Color(0xFF9C27B0);
+  static const Color lightGray = Color(0xFFF8F9FA);
 
   @override
   void initState() {
     super.initState();
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeOut),
+    );
     _loadAvailableForklifts();
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadAvailableForklifts() async {
@@ -29,11 +51,12 @@ class _ForkliftListState extends State<ForkliftList> {
         _isLoading = true;
         _error = null;
       });
-      final forklifts = await ForkliftService.getAvailableForklifts();
+      final forklifts = await ForkliftService.getAllForklifts();
       setState(() {
         _forklifts = forklifts;
         _isLoading = false;
       });
+      _fadeController.forward();
     } catch (e) {
       setState(() {
         _error = e.toString();
@@ -53,210 +76,661 @@ class _ForkliftListState extends State<ForkliftList> {
         return false;
       },
       child: Scaffold(
-        backgroundColor: Colors.grey[50],
-        appBar: AppBar(
-          title: const Text(
-            'Daftar Unit Forklift',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+        backgroundColor: lightGray,
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                darkNavy,
+                deepPurple,
+                materialPurple.withOpacity(0.8),
+              ],
+              stops: const [0.0, 0.6, 1.0],
             ),
           ),
-          backgroundColor: maroonColor,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const About()),
-              );
-            },
+          child: SafeArea(
+            child: Column(
+              children: [
+                _buildEnhancedAppBar(),
+                Expanded(
+                  child: _isLoading
+                      ? _buildEnhancedLoadingState()
+                      : _error != null
+                          ? _buildEnhancedErrorState()
+                          : _buildEnhancedContent(),
+                ),
+              ],
+            ),
           ),
         ),
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _error != null
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 48,
-                          color: Colors.red[400],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Error: $_error',
-                          style: TextStyle(
-                            color: Colors.grey[700],
-                            fontSize: 16,
-                          ),
-                          textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget _buildEnhancedAppBar() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        children: [
+          // Enhanced back button
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new,
+                  color: Colors.white, size: 20),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const About()),
+                );
+              },
+            ),
+          ),
+          const SizedBox(width: 16),
+
+          // Enhanced title section
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Daftar Unit',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: 1,
+                  ),
+                ),
+                Text(
+                  'Pilih forklift terbaik untuk kebutuhan Anda',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.7),
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Stats badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [materialPink, materialPurple],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: materialPink.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Text(
+              '${_forklifts.length} Unit',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnhancedLoadingState() {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(40),
+        margin: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.2)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [materialPink, materialPurple],
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                strokeWidth: 3,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Memuat daftar forklift...',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnhancedErrorState() {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(32),
+        margin: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.red.withOpacity(0.3)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.error_outline,
+                size: 48,
+                color: Colors.redAccent,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Terjadi kesalahan',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _error ?? 'Error tidak diketahui',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _loadAvailableForklifts,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: materialPink,
+                foregroundColor: Colors.white,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Coba Lagi'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnhancedContent() {
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: Column(
+        children: [
+          // Enhanced header stats
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+            child: Row(
+              children: [
+                _buildStatItem(
+                    'Total Unit', '${_forklifts.length}', Icons.forklift),
+                const SizedBox(width: 20),
+                _buildStatItem(
+                    'Tersedia',
+                    '${_forklifts.where((f) => f['status'] == 'tersedia').length}',
+                    Icons.check_circle),
+                const SizedBox(width: 20),
+                _buildStatItem(
+                    'Disewa',
+                    '${_forklifts.where((f) => f['status'] != 'tersedia').length}',
+                    Icons.schedule),
+              ],
+            ),
+          ),
+
+          // Enhanced list
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _loadAvailableForklifts,
+              color: materialPink,
+              backgroundColor: Colors.white,
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                itemCount: _forklifts.length,
+                itemBuilder: (context, index) {
+                  final forklift = _forklifts[index];
+                  return _buildEnhancedForkliftCard(forklift, index);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value, IconData icon) {
+    return Expanded(
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  materialPink.withOpacity(0.3),
+                  materialPurple.withOpacity(0.3)
+                ],
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEnhancedForkliftCard(Map<String, dynamic> forklift, int index) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 300 + (index * 100)),
+      margin: const EdgeInsets.only(bottom: 20),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white.withOpacity(0.15),
+              Colors.white.withOpacity(0.1),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white.withOpacity(0.2)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Enhanced image container
+                  Container(
+                    width: 120,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.grey[100]!,
+                          Colors.grey[50]!,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                          color: materialPink.withOpacity(0.3), width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: materialPink.withOpacity(0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                  )
-                : RefreshIndicator(
-                    onRefresh: _loadAvailableForklifts,
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _forklifts.length,
-                      itemBuilder: (context, index) {
-                        final forklift = _forklifts[index];
-                        return Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 4,
-                          margin: const EdgeInsets.only(bottom: 20),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Container(
-                                    color: Colors.grey[200],
-                                    width: 110,
-                                    height: 90,
-                                    child: forklift['gambar'] != null
-                                        ? CachedNetworkImage(
-                                            imageUrl:
-                                                'http://192.168.1.17:3000/images/${forklift['gambar']}',
-                                            fit: BoxFit.cover,
-                                            width: 110,
-                                            height: 90,
-                                            placeholder: (context, url) =>
-                                                const Center(
-                                                    child:
-                                                        CircularProgressIndicator()),
-                                            errorWidget: (context, url,
-                                                    error) =>
-                                                const Center(
-                                                    child: Icon(Icons.forklift,
-                                                        size: 50)),
-                                          )
-                                        : const Center(
-                                            child:
-                                                Icon(Icons.forklift, size: 50)),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        forklift['nama_unit'] ?? '-',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: forklift['status'] ==
-                                                  'tersedia'
-                                              ? Colors.green.withOpacity(0.1)
-                                              : Colors.red.withOpacity(0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(4),
-                                        ),
-                                        child: Text(
-                                          forklift['status'] == 'tersedia'
-                                              ? 'Tersedia'
-                                              : 'Disewa',
-                                          style: TextStyle(
-                                            color:
-                                                forklift['status'] == 'tersedia'
-                                                    ? Colors.green
-                                                    : Colors.red,
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Kapasitas: ${forklift['kapasitas']} ton',
-                                        style: const TextStyle(fontSize: 13),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        'Harga Mulai dari',
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.grey[700]),
-                                      ),
-                                      Text(
-                                        'Rp ${forklift['harga_per_jam'] ?? '-'} / Jam',
-                                        style: TextStyle(
-                                          color: maroonColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                      if (forklift['deskripsi'] != null) ...[
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          forklift['deskripsi'],
-                                          style: const TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.black87),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ],
-                                      const SizedBox(height: 10),
-                                      if (forklift['status'] == 'tersedia')
-                                        SizedBox(
-                                          width: double.infinity,
-                                          child: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: maroonColor,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 10),
-                                            ),
-                                            onPressed: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      NewOrder(
-                                                    selectedForklift: forklift,
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                            child: const Text('Pesan Sekarang',
-                                                style: TextStyle(
-                                                    color: Colors.white)),
-                                          ),
-                                        ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: forklift['gambar'] != null
+                          ? CachedNetworkImage(
+                              imageUrl:
+                                  'http://192.168.1.17:3000/images/${forklift['gambar']}',
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      materialPink.withOpacity(0.1),
+                                      materialPurple.withOpacity(0.1)
                                     ],
                                   ),
                                 ),
-                              ],
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: materialPink,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      materialPink.withOpacity(0.2),
+                                      materialPurple.withOpacity(0.2)
+                                    ],
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.forklift,
+                                  size: 40,
+                                  color: materialPink,
+                                ),
+                              ),
+                            )
+                          : Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    materialPink.withOpacity(0.2),
+                                    materialPurple.withOpacity(0.2)
+                                  ],
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.forklift,
+                                size: 40,
+                                color: materialPink,
+                              ),
                             ),
-                          ),
-                        );
-                      },
                     ),
                   ),
+                  const SizedBox(width: 16),
+
+                  // Enhanced info section
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Enhanced title with badge
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                forklift['nama_unit'] ?? '-',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: forklift['status'] == 'tersedia'
+                                      ? [Colors.green, Colors.green.shade400]
+                                      : [Colors.red, Colors.red.shade400],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (forklift['status'] == 'tersedia'
+                                            ? Colors.green
+                                            : Colors.red)
+                                        .withOpacity(0.3),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Text(
+                                forklift['status'] == 'tersedia'
+                                    ? 'TERSEDIA'
+                                    : 'DISEWA',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 10,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        // Enhanced specs
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                                color: Colors.white.withOpacity(0.2)),
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.fitness_center,
+                                      color: materialPink, size: 16),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Kapasitas: ${forklift['kapasitas']} ton',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.white.withOpacity(0.9),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Icon(Icons.attach_money,
+                                      color: materialPink, size: 16),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Harga Mulai dari',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color:
+                                                Colors.white.withOpacity(0.7),
+                                          ),
+                                        ),
+                                        Text(
+                                          'Rp ${forklift['harga_per_jam'] ?? '-'} / Jam',
+                                          style: const TextStyle(
+                                            color: materialPink,
+                                            fontWeight: FontWeight.w900,
+                                            fontSize: 16,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        if (forklift['deskripsi'] != null) ...[
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                  color: Colors.white.withOpacity(0.1)),
+                            ),
+                            child: Text(
+                              forklift['deskripsi'],
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white.withOpacity(0.8),
+                                height: 1.4,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+
+              // Enhanced action button
+              if (forklift['status'] == 'tersedia') ...[
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [materialPink, materialPurple],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: materialPink.withOpacity(0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              NewOrder(selectedForklift: forklift),
+                        ),
+                      );
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.shopping_cart_outlined,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Pesan Sekarang',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ] else ...[
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Sedang Disewa',
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

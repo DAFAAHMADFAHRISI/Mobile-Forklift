@@ -18,7 +18,13 @@ class _MasukState extends State<Masuk> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _isDisposed = false;
-  final Color maroonColor = const Color(0xFF800000);
+
+  // Define custom colors
+  static const Color darkNavy = Color(0xFF1A1D29);
+  static const Color deepPurple = Color(0xFF2D1B69);
+  static const Color materialPink = Color(0xFFE91E63);
+  static const Color materialPurple = Color(0xFF9C27B0);
+  static const Color lightGray = Color(0xFFF8F9FA);
 
   @override
   void initState() {
@@ -112,7 +118,7 @@ class _MasukState extends State<Masuk> {
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: lightGray,
         appBar: AppBar(
           title: const Text(
             'Masuk',
@@ -121,18 +127,20 @@ class _MasukState extends State<Masuk> {
               color: Colors.white,
             ),
           ),
-          backgroundColor: maroonColor,
+          backgroundColor: darkNavy,
           automaticallyImplyLeading: false,
           elevation: 0,
         ),
         body: Container(
+          width: double.infinity,
+          height: double.infinity,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                maroonColor.withOpacity(0.1),
-                Colors.white,
+                darkNavy,
+                deepPurple,
               ],
             ),
           ),
@@ -150,7 +158,7 @@ class _MasukState extends State<Masuk> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: maroonColor.withOpacity(0.2),
+                            color: Colors.white.withOpacity(0.2),
                             blurRadius: 10,
                             spreadRadius: 2,
                           ),
@@ -165,61 +173,32 @@ class _MasukState extends State<Masuk> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  TextFormField(
-                    controller: _usernameController,
-                    decoration: InputDecoration(
-                      labelText: 'Username',
-                      labelStyle: TextStyle(color: maroonColor),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: maroonColor),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.13),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.13),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            BorderSide(color: maroonColor.withOpacity(0.5)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: maroonColor, width: 2),
-                      ),
-                      prefixIcon: Icon(Icons.person, color: maroonColor),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.10),
+                          blurRadius: 16,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Username harus diisi';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: InputDecoration(
-                      labelText: 'Kata Sandi',
-                      labelStyle: TextStyle(color: maroonColor),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: maroonColor),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            BorderSide(color: maroonColor.withOpacity(0.5)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: maroonColor, width: 2),
-                      ),
-                      prefixIcon: Icon(Icons.lock, color: maroonColor),
+                    padding: const EdgeInsets.all(18),
+                    child: Column(
+                      children: [
+                        _buildTextField(
+                            _usernameController, 'Username', Icons.person),
+                        const SizedBox(height: 20),
+                        _buildTextField(
+                            _passwordController, 'Kata Sandi', Icons.lock,
+                            obscureText: true),
+                      ],
                     ),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Kata sandi harus diisi';
-                      }
-                      return null;
-                    },
                   ),
                   const SizedBox(height: 40),
                   SizedBox(
@@ -227,7 +206,7 @@ class _MasukState extends State<Masuk> {
                     height: 50,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: maroonColor,
+                        backgroundColor: materialPink,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -261,7 +240,7 @@ class _MasukState extends State<Masuk> {
                       Text(
                         'Belum punya akun?',
                         style: TextStyle(
-                          color: Colors.grey[700],
+                          color: Colors.white.withOpacity(0.7),
                         ),
                       ),
                       TextButton(
@@ -273,10 +252,10 @@ class _MasukState extends State<Masuk> {
                             ),
                           );
                         },
-                        child: Text(
+                        child: const Text(
                           'Daftar',
                           style: TextStyle(
-                            color: maroonColor,
+                            color: materialPink,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -289,6 +268,45 @@ class _MasukState extends State<Masuk> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(
+      TextEditingController controller, String label, IconData icon,
+      {bool obscureText = false}) {
+    return TextFormField(
+      controller: controller,
+      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+      cursorColor: materialPink,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
+        hintText: label,
+        hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.08),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.13)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: materialPink, width: 2),
+        ),
+        prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      ),
+      validator: (value) {
+        if (label == 'Username' && (value == null || value.isEmpty)) {
+          return 'Username harus diisi';
+        }
+        if (label == 'Kata Sandi' && (value == null || value.isEmpty)) {
+          return 'Kata sandi harus diisi';
+        }
+        return null;
+      },
     );
   }
 }
