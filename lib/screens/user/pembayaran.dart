@@ -5,6 +5,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'dart:typed_data';
+import 'package:url_launcher/url_launcher.dart';
+import 'payment_webview.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class Pembayaran extends StatefulWidget {
   final int jumlah;
@@ -29,6 +32,10 @@ class _PembayaranState extends State<Pembayaran> {
   late TextEditingController _jumlahController;
   late TextEditingController _metodeController;
   late TextEditingController _tanggalController;
+  late TextEditingController _firstNameController;
+  late TextEditingController _lastNameController;
+  late TextEditingController _emailController;
+  late TextEditingController _phoneController;
   bool _isLoading = false;
   XFile? _buktiPembayaran;
   Uint8List? _buktiPembayaranBytes;
@@ -41,6 +48,10 @@ class _PembayaranState extends State<Pembayaran> {
     _metodeController = TextEditingController(text: widget.metode);
     _tanggalController = TextEditingController(
         text: DateFormat('yyyy-MM-dd').format(widget.tanggalPembayaran));
+    _firstNameController = TextEditingController();
+    _lastNameController = TextEditingController();
+    _emailController = TextEditingController();
+    _phoneController = TextEditingController();
   }
 
   @override
@@ -48,6 +59,10 @@ class _PembayaranState extends State<Pembayaran> {
     _jumlahController.dispose();
     _metodeController.dispose();
     _tanggalController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -123,6 +138,86 @@ class _PembayaranState extends State<Pembayaran> {
     }
   }
 
+  Future<void> _createTransaction() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
+    try {
+      final idPemesanan = widget.idPemesanan ?? 1;
+      final url =
+          Uri.parse('http://localhost:3000/api/payment/create-transaction');
+      final body = {
+        "id_pemesanan": idPemesanan.toString(),
+        "jumlah": int.tryParse(_jumlahController.text) ?? 0,
+        "metode": _metodeController.text,
+        "first_name": _firstNameController.text,
+        "last_name": _lastNameController.text,
+        "email": _emailController.text,
+        "phone": _phoneController.text
+      };
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(body),
+      );
+      final data = json.decode(response.body);
+      if ((response.statusCode == 200 || response.statusCode == 201) &&
+          data['status'] == true) {
+        String? paymentUrl;
+        if (data['data'] != null && data['data']['redirect_url'] != null) {
+          paymentUrl = data['data']['redirect_url'];
+        } else {
+          paymentUrl =
+              data['redirect_url'] ?? data['payment_url'] ?? data['snap_url'];
+        }
+        if (paymentUrl != null && paymentUrl.isNotEmpty) {
+          if (kIsWeb) {
+            final uri = Uri.parse(paymentUrl);
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Text(
+                        'Tidak bisa membuka link pembayaran: $paymentUrl')),
+              );
+            }
+          } else {
+            if (mounted) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PaymentWebView(paymentUrl: paymentUrl!),
+                ),
+              );
+            }
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text(
+                    'Transaksi payment gateway berhasil dibuat, tapi link pembayaran tidak ditemukan')),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(data['message'] ??
+                    'Gagal membuat transaksi payment gateway')),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,6 +266,37 @@ class _PembayaranState extends State<Pembayaran> {
                 },
               ),
               const SizedBox(height: 16),
+              TextFormField(
+                controller: _firstNameController,
+                decoration: const InputDecoration(labelText: 'Nama Depan'),
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? 'Nama depan harus diisi' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _lastNameController,
+                decoration: const InputDecoration(labelText: 'Nama Belakang'),
+                validator: (v) => (v == null || v.isEmpty)
+                    ? 'Nama belakang harus diisi'
+                    : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+                keyboardType: TextInputType.emailAddress,
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? 'Email harus diisi' : null,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _phoneController,
+                decoration: const InputDecoration(labelText: 'No. HP'),
+                keyboardType: TextInputType.phone,
+                validator: (v) =>
+                    (v == null || v.isEmpty) ? 'No. HP harus diisi' : null,
+              ),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   ElevatedButton.icon(
@@ -201,9 +327,24 @@ class _PembayaranState extends State<Pembayaran> {
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Text('Konfirmasi Pembayaran'),
+                      : const Text('Konfirmasi Pembayaran (Manual)'),
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFFFFA500)),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _createTransaction,
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Text('Bayar via Payment Gateway'),
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.green),
                 ),
               ),
             ],
