@@ -9,6 +9,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'payment_webview.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../models/midtrans_notification.dart';
+import '../../services/pesanan_service.dart';
 
 class Pembayaran extends StatefulWidget {
   final int jumlah;
@@ -44,6 +46,9 @@ class _PembayaranState extends State<Pembayaran> with TickerProviderStateMixin {
   late Animation<double> _fadeAnimation;
   bool _canPay = true;
   String? _orderError;
+  final PesananService _pesananService = PesananService();
+  MidtransNotification? _notification;
+  String _status = 'Menunggu konfirmasi pembayaran...';
 
   // Enhanced color scheme
   static const Color darkNavy = Color(0xFF1A1D29);
@@ -125,6 +130,7 @@ class _PembayaranState extends State<Pembayaran> with TickerProviderStateMixin {
     _emailController.dispose();
     _phoneController.dispose();
     _fadeController.dispose();
+    _pesananService.stopPolling();
     super.dispose();
   }
 
@@ -134,7 +140,7 @@ class _PembayaranState extends State<Pembayaran> with TickerProviderStateMixin {
     try {
       final idPemesanan = widget.idPemesanan ?? 1;
       final url =
-          Uri.parse('http://localhost:3000/api/payment/create-transaction');
+          Uri.parse('http://192.168.1.12:3000/api/payment/create-transaction');
       final body = {
         "id_pemesanan": idPemesanan.toString(),
         "jumlah": int.tryParse(_jumlahController.text) ?? 0,
@@ -171,13 +177,40 @@ class _PembayaranState extends State<Pembayaran> with TickerProviderStateMixin {
   }
 
   Future<void> _handlePaymentResponse(Map<String, dynamic> data) async {
+    print('DEBUG payment response: $data');
     String? paymentUrl;
+    String? orderIdMidtrans;
 
-    if (data['data'] != null && data['data']['redirect_url'] != null) {
+    if (data['data'] != null) {
       paymentUrl = data['data']['redirect_url'];
+      orderIdMidtrans = data['data']['order_id'];
+    }
+
+    if (orderIdMidtrans != null && orderIdMidtrans.isNotEmpty) {
+      _pesananService.startPolling(orderIdMidtrans, (notification) {
+        setState(() {
+          _notification = notification;
+          _status = 'Pembayaran berhasil untuk order: ${notification.orderId}';
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Center(
+              child: Text(
+                'Pembayaran sukses! kembali halaman Utama...',
+                textAlign: TextAlign.center,
+              ),
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: successGreen,
+          ),
+        );
+        Future.delayed(const Duration(seconds: 1), () {
+          Navigator.pushReplacementNamed(context, '/about');
+        });
+      });
     } else {
-      paymentUrl =
-          data['redirect_url'] ?? data['payment_url'] ?? data['snap_url'];
+      _showErrorMessage(
+          'Gagal mendapatkan orderId dari Midtrans. Tidak bisa melakukan polling status pembayaran.\nResponse: $data');
     }
 
     if (paymentUrl != null && paymentUrl.isNotEmpty) {

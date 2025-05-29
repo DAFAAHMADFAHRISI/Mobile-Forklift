@@ -43,7 +43,7 @@ class _DaftarOperatorState extends State<DaftarOperator> {
         return;
       }
       final response = await http.get(
-        Uri.parse('http://localhost:3000/api/operator'),
+        Uri.parse('http://192.168.1.12:3000/api/operator'),
         headers: {
           'Authorization': 'Bearer $token',
         },

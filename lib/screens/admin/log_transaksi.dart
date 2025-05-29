@@ -24,8 +24,8 @@ class _LogTransaksiState extends State<LogTransaksi> {
 
   Future<void> fetchLogs() async {
     try {
-      final response =
-          await http.get(Uri.parse('http://localhost:3000/api/log-transaksi/'));
+      final response = await http
+          .get(Uri.parse('http://192.168.1.12:3000/api/log-transaksi/'));
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         final List<dynamic> data = jsonData['data'];
@@ -75,7 +75,7 @@ class _LogTransaksiState extends State<LogTransaksi> {
         return;
       }
       final response = await http.delete(
-        Uri.parse('http://localhost:3000/api/log-transaksi/delete/$id'),
+        Uri.parse('http://192.168.1.12:3000/api/log-transaksi/delete/$id'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',

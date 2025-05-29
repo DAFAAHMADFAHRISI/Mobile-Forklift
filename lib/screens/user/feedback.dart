@@ -155,7 +155,8 @@ class _UserFeedbackState extends State<UserFeedback> {
                   onPressed: () async {
                     if (_formKey.currentState!.validate() && _rating > 0) {
                       final response = await http.post(
-                        Uri.parse('http://localhost:3000/api/feedback/store'),
+                        Uri.parse(
+                            'http://192.168.1.12:3000/api/feedback/store'),
                         headers: {'Content-Type': 'application/json'},
                         body: json.encode({
                           'id_pemesanan': widget.idPemesanan,
