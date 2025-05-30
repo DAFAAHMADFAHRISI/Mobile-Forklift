@@ -196,7 +196,7 @@ class _PembayaranState extends State<Pembayaran> with TickerProviderStateMixin {
           SnackBar(
             content: Center(
               child: Text(
-                'Pembayaran sukses! kembali halaman Utama...',
+                'Pembayaran sukses! kembali ke halaman Riwayat Pemesanan...',
                 textAlign: TextAlign.center,
               ),
             ),
@@ -205,7 +205,7 @@ class _PembayaranState extends State<Pembayaran> with TickerProviderStateMixin {
           ),
         );
         Future.delayed(const Duration(seconds: 1), () {
-          Navigator.pushReplacementNamed(context, '/about');
+          Navigator.pushReplacementNamed(context, '/order-history');
         });
       });
     } else {
