@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:forklift_mobile/screens/user/forklift_list.dart';
 import 'package:forklift_mobile/screens/user/daftar_unit.dart';
 import 'package:forklift_mobile/screens/user/order_history.dart';
+import 'package:forklift_mobile/screens/user/new_order.dart';
+import 'package:forklift_mobile/screens/user/feedback.dart';
 
 class About extends StatelessWidget {
   const About({super.key});
@@ -134,12 +136,6 @@ class About extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
-                    _buildFeatureListItem(
-                      icon: Icons.person_outline,
-                      title: 'Profil Pengguna',
-                      description: 'Kelola informasi profil Anda',
-                      color: materialPink,
-                    ),
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -156,11 +152,21 @@ class About extends StatelessWidget {
                         color: Colors.green,
                       ),
                     ),
-                    _buildFeatureListItem(
-                      icon: Icons.add_circle_outline,
-                      title: 'Pemesanan Baru',
-                      description: 'Buat pemesanan forklift baru',
-                      color: materialPurple,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NewOrder(),
+                          ),
+                        );
+                      },
+                      child: _buildFeatureListItem(
+                        icon: Icons.add_circle_outline,
+                        title: 'Pemesanan Baru',
+                        description: 'Buat pemesanan forklift baru',
+                        color: materialPurple,
+                      ),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -178,11 +184,22 @@ class About extends StatelessWidget {
                         color: Colors.orange,
                       ),
                     ),
-                    _buildFeatureListItem(
-                      icon: Icons.feedback_outlined,
-                      title: 'Feedback',
-                      description: 'Berikan masukan untuk layanan kami',
-                      color: Colors.red,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const UserFeedback(idPemesanan: 0),
+                          ),
+                        );
+                      },
+                      child: _buildFeatureListItem(
+                        icon: Icons.feedback_outlined,
+                        title: 'Feedback',
+                        description: 'Berikan masukan untuk layanan kami',
+                        color: Colors.red,
+                      ),
                     ),
                   ],
                 ),
