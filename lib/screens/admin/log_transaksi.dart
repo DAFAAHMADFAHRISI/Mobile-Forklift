@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import '../../services/auth_service.dart';
+import 'admin_theme.dart';
 
 class LogTransaksi extends StatefulWidget {
   const LogTransaksi({super.key});
@@ -133,145 +134,165 @@ class _LogTransaksiState extends State<LogTransaksi> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Log Transaksi')),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? Center(child: Text(_error!))
-              : _logs.isEmpty
-                  ? const Center(child: Text('Belum ada log transaksi.'))
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _logs.length,
-                      itemBuilder: (context, index) {
-                        final log = _logs[index];
-                        return Card(
-                          elevation: 3,
-                          margin: const EdgeInsets.only(bottom: 18),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(18),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
+      appBar: AppBar(
+          title: Text('Log Transaksi', style: AdminTheme.appBarTitle),
+          backgroundColor: AdminTheme.primaryDark,
+          elevation: 0),
+      body: Container(
+        decoration: AdminTheme.backgroundGradient,
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+                ? Center(
+                    child: Text(_error!, style: TextStyle(color: Colors.white)))
+                : _logs.isEmpty
+                    ? const Center(
+                        child: Text('Belum ada log transaksi.',
+                            style: TextStyle(color: Colors.white)))
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _logs.length,
+                        itemBuilder: (context, index) {
+                          final log = _logs[index];
+                          return Container(
+                            decoration: AdminTheme.cardBox,
+                            margin: const EdgeInsets.only(bottom: 18),
+                            child: Card(
+                              color: Colors.transparent,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(18),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: getBadgeColor(log['tipe']),
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Text(
-                                        log['tipe'].toString().toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete,
-                                          color: Colors.redAccent),
-                                      tooltip: 'Hapus log',
-                                      onPressed: () async {
-                                        final confirm = await showDialog<bool>(
-                                          context: context,
-                                          builder: (ctx) => AlertDialog(
-                                            title: const Text('Konfirmasi'),
-                                            content: const Text(
-                                                'Yakin ingin menghapus log ini?'),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.of(ctx)
-                                                        .pop(false),
-                                                child: const Text('Batal'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () =>
-                                                    Navigator.of(ctx).pop(true),
-                                                child: const Text('Hapus',
-                                                    style: TextStyle(
-                                                        color: Colors.red)),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                        if (confirm == true) {
-                                          await deleteLog(log['id']);
-                                        }
-                                      },
-                                    ),
                                     Row(
                                       children: [
-                                        const Icon(Icons.access_time,
-                                            size: 16, color: Colors.grey),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          formatDate(log['tanggal']),
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 12,
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: getBadgeColor(log['tipe']),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                           ),
+                                          child: Text(
+                                            log['tipe']
+                                                .toString()
+                                                .toUpperCase(),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete,
+                                              color: Colors.redAccent),
+                                          tooltip: 'Hapus log',
+                                          onPressed: () async {
+                                            final confirm =
+                                                await showDialog<bool>(
+                                              context: context,
+                                              builder: (ctx) => AlertDialog(
+                                                title: const Text('Konfirmasi'),
+                                                content: const Text(
+                                                    'Yakin ingin menghapus log ini?'),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.of(ctx)
+                                                            .pop(false),
+                                                    child: const Text('Batal'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.of(ctx)
+                                                            .pop(true),
+                                                    child: const Text('Hapus',
+                                                        style: TextStyle(
+                                                            color: Colors.red)),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                            if (confirm == true) {
+                                              await deleteLog(log['id']);
+                                            }
+                                          },
+                                        ),
+                                        Row(
+                                          children: [
+                                            const Icon(Icons.access_time,
+                                                size: 16, color: Colors.grey),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              formatDate(log['tanggal']),
+                                              style: const TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      log['deskripsi'],
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    const Divider(),
+                                    const SizedBox(height: 8),
+                                    const Text(
+                                      'Detail:',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    ...log['detail']
+                                        .entries
+                                        .map<Widget>((entry) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 8, bottom: 2),
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              '${entry.key}: ',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                            Text(
+                                              '${entry.value}',
+                                              style: const TextStyle(
+                                                color: Colors.black54,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }),
                                   ],
                                 ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  log['deskripsi'],
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                const Divider(),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  'Detail:',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                ...log['detail'].entries.map<Widget>((entry) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 8, bottom: 2),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          '${entry.key}: ',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                        Text(
-                                          '${entry.value}',
-                                          style: const TextStyle(
-                                            color: Colors.black54,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                              ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
+      ),
     );
   }
 }

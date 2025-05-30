@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'admin_theme.dart';
 
 class KelolaPengguna extends StatefulWidget {
   const KelolaPengguna({super.key});
@@ -30,45 +31,59 @@ class _KelolaPenggunaState extends State<KelolaPengguna> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Kelola Pengguna')),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _users.length,
-        itemBuilder: (context, index) {
-          final user = _users[index];
-          return Card(
-            margin: const EdgeInsets.only(bottom: 16),
-            child: ListTile(
-              title: Text(user['nama']),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Email: ${user['email']}'),
-                  Text('Peran: ${user['role']}'),
-                  Text('No. HP: ${user['no_hp']}'),
-                  Text('Alamat: ${user['alamat']}'),
-                ],
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () {
-                      // TODO: Implementasi edit pengguna
-                    },
+      appBar: AppBar(
+          title: Text('Kelola Pengguna', style: AdminTheme.appBarTitle),
+          backgroundColor: AdminTheme.primaryDark,
+          elevation: 0),
+      body: Container(
+        decoration: AdminTheme.backgroundGradient,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: _users.length,
+          itemBuilder: (context, index) {
+            final user = _users[index];
+            return Container(
+              decoration: AdminTheme.cardBox,
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Card(
+                color: Colors.transparent,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: ListTile(
+                  title: Text(user['nama']),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Email: ${user['email']}'),
+                      Text('Peran: ${user['role']}'),
+                      Text('No. HP: ${user['no_hp']}'),
+                      Text('Alamat: ${user['alamat']}'),
+                    ],
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      // TODO: Implementasi hapus pengguna
-                    },
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () {
+                          // TODO: Implementasi edit pengguna
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          // TODO: Implementasi hapus pengguna
+                        },
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

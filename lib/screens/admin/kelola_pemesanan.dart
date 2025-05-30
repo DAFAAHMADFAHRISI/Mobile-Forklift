@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../services/pesanan_service.dart';
 import '../../services/auth_service.dart'; // Assuming you have an auth service for token management
+import 'admin_theme.dart';
 
 class KelolaPemesanan extends StatefulWidget {
   const KelolaPemesanan({super.key});
@@ -147,189 +148,194 @@ class _KelolaPemesananState extends State<KelolaPemesanan> {
 
   @override
   Widget build(BuildContext context) {
-    const orange = Color(0xFFFF9800);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kelola Pemesanan'),
-        backgroundColor: orange,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadPesanan,
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: orange))
-          : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(_error!, style: const TextStyle(color: Colors.red)),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: orange,
-                        ),
-                        onPressed: _loadPesanan,
-                        child: const Text('Coba Lagi'),
-                      ),
-                    ],
-                  ),
-                )
-              : _orders.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Tidak ada pesanan',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _orders.length,
-                      itemBuilder: (context, index) {
-                        final order = _orders[index];
-                        return Card(
-                          elevation: 4,
-                          margin: const EdgeInsets.only(bottom: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+          title: Text('Kelola Pemesanan', style: AdminTheme.appBarTitle),
+          backgroundColor: AdminTheme.primaryDark,
+          elevation: 0),
+      body: Container(
+        decoration: AdminTheme.backgroundGradient,
+        child: _isLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: Color(0xFFFF9800)))
+            : _error != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(_error!,
+                            style: const TextStyle(color: Colors.white)),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFFFF9800),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                          onPressed: _loadPesanan,
+                          child: const Text('Coba Lagi'),
+                        ),
+                      ],
+                    ),
+                  )
+                : _orders.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'Tidak ada pesanan',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _orders.length,
+                        itemBuilder: (context, index) {
+                          final order = _orders[index];
+                          return Container(
+                            decoration: AdminTheme.cardBox,
+                            margin: const EdgeInsets.only(bottom: 16),
+                            child: Card(
+                              color: Colors.transparent,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(
-                                      child: Text(
-                                        'Pemesanan #${order['id'] ?? 'null'}',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ),
                                     Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: _getStatusColor(
-                                                order['status'] ?? ''),
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                          ),
+                                        Expanded(
                                           child: Text(
-                                            (order['status'] ?? '')
-                                                .toUpperCase(),
+                                            'Pemesanan #${order['id'] ?? 'null'}',
                                             style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
                                               fontWeight: FontWeight.bold,
+                                              fontSize: 18,
                                             ),
                                           ),
                                         ),
-                                        IconButton(
-                                          icon:
-                                              const Icon(Icons.delete_outline),
-                                          onPressed: () => _deletePesanan(
-                                              order['id'].toString()),
-                                          color: Colors.red,
+                                        Row(
+                                          children: [
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 4,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: _getStatusColor(
+                                                    order['status'] ?? ''),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              child: Text(
+                                                (order['status'] ?? '')
+                                                    .toUpperCase(),
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(
+                                                  Icons.delete_outline),
+                                              onPressed: () => _deletePesanan(
+                                                  order['id'].toString()),
+                                              color: Colors.red,
+                                            ),
+                                          ],
                                         ),
+                                      ],
+                                    ),
+                                    const Divider(height: 24),
+                                    _buildInfoRow(
+                                        'Pemesan', order['nama_user'] ?? '-'),
+                                    _buildInfoRow(
+                                        'Unit', order['nama_unit'] ?? '-'),
+                                    _buildInfoRow('Operator',
+                                        order['nama_operator'] ?? '-'),
+                                    _buildInfoRow('Tanggal',
+                                        '${order['tanggal_mulai'] ?? '-'} - ${order['tanggal_selesai'] ?? '-'}'),
+                                    _buildInfoRow('Lokasi',
+                                        order['lokasi_pengiriman'] ?? '-'),
+                                    _buildInfoRow('Perusahaan',
+                                        order['nama_perusahaan'] ?? '-'),
+                                    _buildInfoRow('Total',
+                                        'Rp ${order['total_harga'] ?? '-'}'),
+                                    const SizedBox(height: 16),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        if (order['status'] ==
+                                            'menunggu pembayaran')
+                                          ElevatedButton.icon(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  Color(0xFFFF9800),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                            onPressed: () => _showStatusPicker(
+                                                order['id'].toString()),
+                                            icon: const Icon(
+                                                Icons.check_circle_outline),
+                                            label: const Text(
+                                                'Verifikasi Pembayaran'),
+                                          ),
+                                        if (order['status'] ==
+                                            'menunggu konfirmasi')
+                                          ElevatedButton.icon(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.blue,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                            onPressed: () => _updateStatus(
+                                              order['id'].toString(),
+                                              'dikirim',
+                                            ),
+                                            icon: const Icon(
+                                                Icons.local_shipping_outlined),
+                                            label: const Text(
+                                                'Konfirmasi Pengiriman'),
+                                          ),
+                                        if (order['status'] == 'dikirim')
+                                          ElevatedButton.icon(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.green,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                            onPressed: () => _updateStatus(
+                                              order['id'].toString(),
+                                              'selesai',
+                                            ),
+                                            icon: const Icon(Icons.done_all),
+                                            label: const Text(
+                                                'Selesaikan Pesanan'),
+                                          ),
                                       ],
                                     ),
                                   ],
                                 ),
-                                const Divider(height: 24),
-                                _buildInfoRow(
-                                    'Pemesan', order['nama_user'] ?? '-'),
-                                _buildInfoRow(
-                                    'Unit', order['nama_unit'] ?? '-'),
-                                _buildInfoRow(
-                                    'Operator', order['nama_operator'] ?? '-'),
-                                _buildInfoRow('Tanggal',
-                                    '${order['tanggal_mulai'] ?? '-'} - ${order['tanggal_selesai'] ?? '-'}'),
-                                _buildInfoRow('Lokasi',
-                                    order['lokasi_pengiriman'] ?? '-'),
-                                _buildInfoRow('Perusahaan',
-                                    order['nama_perusahaan'] ?? '-'),
-                                _buildInfoRow('Total',
-                                    'Rp ${order['total_harga'] ?? '-'}'),
-                                const SizedBox(height: 16),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    if (order['status'] ==
-                                        'menunggu pembayaran')
-                                      ElevatedButton.icon(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: orange,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                        onPressed: () => _showStatusPicker(
-                                            order['id'].toString()),
-                                        icon: const Icon(
-                                            Icons.check_circle_outline),
-                                        label:
-                                            const Text('Verifikasi Pembayaran'),
-                                      ),
-                                    if (order['status'] ==
-                                        'menunggu konfirmasi')
-                                      ElevatedButton.icon(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.blue,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                        onPressed: () => _updateStatus(
-                                          order['id'].toString(),
-                                          'dikirim',
-                                        ),
-                                        icon: const Icon(
-                                            Icons.local_shipping_outlined),
-                                        label:
-                                            const Text('Konfirmasi Pengiriman'),
-                                      ),
-                                    if (order['status'] == 'dikirim')
-                                      ElevatedButton.icon(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.green,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                        onPressed: () => _updateStatus(
-                                          order['id'].toString(),
-                                          'selesai',
-                                        ),
-                                        icon: const Icon(Icons.done_all),
-                                        label: const Text('Selesaikan Pesanan'),
-                                      ),
-                                  ],
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                          );
+                        },
+                      ),
+      ),
     );
   }
 

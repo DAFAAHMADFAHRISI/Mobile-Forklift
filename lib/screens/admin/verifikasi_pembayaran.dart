@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'admin_theme.dart';
 
 class VerifikasiPembayaran extends StatefulWidget {
   const VerifikasiPembayaran({super.key});
@@ -34,87 +35,102 @@ class _VerifikasiPembayaranState extends State<VerifikasiPembayaran> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Verifikasi Pembayaran')),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _payments.length,
-        itemBuilder: (context, index) {
-          final payment = _payments[index];
-          return Card(
-            margin: const EdgeInsets.only(bottom: 16),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      appBar: AppBar(
+          title: Text('Verifikasi Pembayaran', style: AdminTheme.appBarTitle),
+          backgroundColor: AdminTheme.primaryDark,
+          elevation: 0),
+      body: Container(
+        decoration: AdminTheme.backgroundGradient,
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: _payments.length,
+          itemBuilder: (context, index) {
+            final payment = _payments[index];
+            return Container(
+              decoration: AdminTheme.cardBox,
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Card(
+                color: Colors.transparent,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Pembayaran #${payment['id']}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getStatusColor(payment['status_verifikasi']),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          payment['status_verifikasi'].toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Pembayaran #${payment['id']}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
                           ),
-                        ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color:
+                                  _getStatusColor(payment['status_verifikasi']),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              payment['status_verifikasi'].toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 16),
+                      Text('ID Pemesanan: #${payment['order_id']}'),
+                      Text('Pemesan: ${payment['nama_user']}'),
+                      Text('Total: Rp ${payment['total_pembayaran']}'),
+                      Text('Metode: ${payment['metode_pembayaran']}'),
+                      Text('Tanggal: ${payment['tanggal_pembayaran']}'),
+                      const SizedBox(height: 16),
+                      if (payment['status_verifikasi'] == 'menunggu')
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                // TODO: Implementasi tolak pembayaran
+                              },
+                              child: const Text('Tolak'),
+                            ),
+                            const SizedBox(width: 8),
+                            ElevatedButton(
+                              onPressed: () {
+                                // TODO: Implementasi terima pembayaran
+                              },
+                              child: const Text('Terima'),
+                            ),
+                          ],
+                        ),
+                      if (payment['bukti_transfer'] != null)
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            // TODO: Implementasi lihat bukti transfer
+                          },
+                          icon: const Icon(Icons.image),
+                          label: const Text('Lihat Bukti Transfer'),
+                        ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  Text('ID Pemesanan: #${payment['order_id']}'),
-                  Text('Pemesan: ${payment['nama_user']}'),
-                  Text('Total: Rp ${payment['total_pembayaran']}'),
-                  Text('Metode: ${payment['metode_pembayaran']}'),
-                  Text('Tanggal: ${payment['tanggal_pembayaran']}'),
-                  const SizedBox(height: 16),
-                  if (payment['status_verifikasi'] == 'menunggu')
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            // TODO: Implementasi tolak pembayaran
-                          },
-                          child: const Text('Tolak'),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            // TODO: Implementasi terima pembayaran
-                          },
-                          child: const Text('Terima'),
-                        ),
-                      ],
-                    ),
-                  if (payment['bukti_transfer'] != null)
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // TODO: Implementasi lihat bukti transfer
-                      },
-                      icon: const Icon(Icons.image),
-                      label: const Text('Lihat Bukti Transfer'),
-                    ),
-                ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../services/forklift_service.dart';
+import 'admin_theme.dart';
 
 class KelolaOperator extends StatefulWidget {
   const KelolaOperator({super.key});
@@ -46,6 +47,7 @@ class _KelolaOperatorState extends State<KelolaOperator> {
                       'nama_operator': op['nama_operator'],
                       'status': op['status'],
                       'no_hp': op['no_hp'],
+                      'foto': op['foto'],
                     })
                 .toList();
             _isLoading = false;
@@ -289,68 +291,91 @@ class _KelolaOperatorState extends State<KelolaOperator> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Kelola Operator')),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? Center(child: Text(_error!))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _operators.length,
-                  itemBuilder: (context, index) {
-                    final operator = _operators[index];
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      child: ListTile(
-                        title: Text(operator['nama_operator']),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Status: ${operator['status']}'),
-                            Text('No. HP: ${operator['no_hp']}'),
-                          ],
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () {
-                                _editOperator(operator);
-                              },
+      appBar: AppBar(
+          title: Text('Kelola Operator', style: AdminTheme.appBarTitle),
+          backgroundColor: AdminTheme.primaryDark,
+          elevation: 0),
+      body: Container(
+        decoration: AdminTheme.backgroundGradient,
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+                ? Center(
+                    child: Text(_error!, style: TextStyle(color: Colors.white)))
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _operators.length,
+                    itemBuilder: (context, index) {
+                      final operator = _operators[index];
+                      return Container(
+                        decoration: AdminTheme.cardBox,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: Card(
+                          color: Colors.transparent,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListTile(
+                            leading: operator['foto'] != null &&
+                                    operator['foto'].toString().isNotEmpty
+                                ? CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                      'http://192.168.1.25:3000/uploads/operator/${operator['foto']}',
+                                    ),
+                                  )
+                                : const CircleAvatar(child: Icon(Icons.person)),
+                            title: Text(operator['nama_operator']),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Status:  ${operator['status']}'),
+                                Text('No. HP:  ${operator['no_hp']}'),
+                              ],
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () async {
-                                final confirm = await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: Text('Hapus Operator'),
-                                    content: Text(
-                                        'Yakin ingin menghapus operator ini?'),
-                                    actions: [
-                                      TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, false),
-                                          child: Text('Batal')),
-                                      ElevatedButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context, true),
-                                          child: Text('Hapus')),
-                                    ],
-                                  ),
-                                );
-                                if (confirm == true) {
-                                  await _deleteOperator(operator['id']);
-                                }
-                              },
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit),
+                                  onPressed: () {
+                                    _editOperator(operator);
+                                  },
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete),
+                                  onPressed: () async {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: Text('Hapus Operator'),
+                                        content: Text(
+                                            'Yakin ingin menghapus operator ini?'),
+                                        actions: [
+                                          TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, false),
+                                              child: Text('Batal')),
+                                          ElevatedButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context, true),
+                                              child: Text('Hapus')),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirm == true) {
+                                      await _deleteOperator(operator['id']);
+                                    }
+                                  },
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddOperatorDialog,
         child: const Icon(Icons.add),
