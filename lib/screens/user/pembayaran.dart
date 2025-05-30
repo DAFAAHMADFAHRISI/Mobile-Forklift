@@ -140,7 +140,7 @@ class _PembayaranState extends State<Pembayaran> with TickerProviderStateMixin {
     try {
       final idPemesanan = widget.idPemesanan ?? 1;
       final url =
-          Uri.parse('http://192.168.1.12:3000/api/payment/create-transaction');
+          Uri.parse('http://192.168.1.25:3000/api/payment/create-transaction');
       final body = {
         "id_pemesanan": idPemesanan.toString(),
         "jumlah": int.tryParse(_jumlahController.text) ?? 0,

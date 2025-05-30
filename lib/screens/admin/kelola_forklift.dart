@@ -238,7 +238,7 @@ class _KelolaForkliftState extends State<KelolaForklift> {
                                 child: forklift['gambar'] != null
                                     ? CachedNetworkImage(
                                         imageUrl:
-                                            'http://192.168.1.12:3000/images/${forklift['gambar']}',
+                                            'http://192.168.1.25:3000/images/${forklift['gambar']}',
                                         fit: BoxFit.cover,
                                         width: 110,
                                         height: 90,
@@ -555,7 +555,7 @@ class _ForkliftFormState extends State<ForkliftForm> {
                     borderRadius: BorderRadius.circular(8),
                     image: DecorationImage(
                       image: NetworkImage(
-                          'http://192.168.1.12:3000/images/$_currentImageUrl'),
+                          'http://192.168.1.25:3000/images/$_currentImageUrl'),
                       fit: BoxFit.cover,
                     ),
                   ),
