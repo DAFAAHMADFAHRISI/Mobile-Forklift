@@ -379,32 +379,72 @@ class _NewOrderState extends State<NewOrder> {
                                           color: Colors.white.withOpacity(0.7),
                                         ),
                                       )
-                                    : Column(
+                                    : Row(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            'Nama: ${_selectedOperator!['nama_operator']}',
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                              color:
-                                                  Colors.white.withOpacity(0.7),
-                                            ),
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            child: _selectedOperator!['foto'] !=
+                                                        null &&
+                                                    _selectedOperator!['foto']
+                                                        .toString()
+                                                        .isNotEmpty
+                                                ? Image.network(
+                                                    'http://192.168.1.12:3000/uploads/operator/${_selectedOperator!['foto']}',
+                                                    width: 48,
+                                                    height: 48,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (context,
+                                                            error,
+                                                            stackTrace) =>
+                                                        const Icon(Icons.person,
+                                                            size: 48,
+                                                            color:
+                                                                Colors.white54),
+                                                  )
+                                                : Container(
+                                                    width: 48,
+                                                    height: 48,
+                                                    color: Colors.grey[300],
+                                                    child: const Icon(
+                                                        Icons.person,
+                                                        size: 32,
+                                                        color: Colors.white54),
+                                                  ),
                                           ),
-                                          Text(
-                                            'No HP: ${_selectedOperator!['no_hp']}',
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                              color:
-                                                  Colors.white.withOpacity(0.7),
-                                            ),
-                                          ),
-                                          Text(
-                                            'Status: ${_selectedOperator!['status']}',
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                              color:
-                                                  Colors.white.withOpacity(0.7),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Nama: ${_selectedOperator!['nama_operator']}',
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    color: Colors.white
+                                                        .withOpacity(0.7),
+                                                  ),
+                                                ),
+                                                Text(
+                                                  'No HP: ${_selectedOperator!['no_hp']}',
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    color: Colors.white
+                                                        .withOpacity(0.7),
+                                                  ),
+                                                ),
+                                                Text(
+                                                  'Status: ${_selectedOperator!['status']}',
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    color: Colors.white
+                                                        .withOpacity(0.7),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],
@@ -678,12 +718,42 @@ class _NewOrderState extends State<NewOrder> {
                             ),
                           ],
                           if (_selectedOperator != null)
-                            Text(
-                              'Operator: ${_selectedOperator!['nama_operator']}',
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Colors.white.withOpacity(0.7),
-                              ),
+                            Row(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: _selectedOperator!['foto'] != null &&
+                                          _selectedOperator!['foto']
+                                              .toString()
+                                              .isNotEmpty
+                                      ? Image.network(
+                                          'http://192.168.1.12:3000/uploads/operator/${_selectedOperator!['foto']}',
+                                          width: 32,
+                                          height: 32,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  const Icon(Icons.person,
+                                                      size: 32,
+                                                      color: Colors.white54),
+                                        )
+                                      : Container(
+                                          width: 32,
+                                          height: 32,
+                                          color: Colors.grey[300],
+                                          child: const Icon(Icons.person,
+                                              size: 20, color: Colors.white54),
+                                        ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Operator: ${_selectedOperator!['nama_operator']}',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white.withOpacity(0.7),
+                                  ),
+                                ),
+                              ],
                             ),
                           if (_tanggalMulai != null &&
                               _tanggalSelesai != null) ...[

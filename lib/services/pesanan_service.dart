@@ -131,7 +131,7 @@ class PesananService {
     try {
       final response = await http.post(
         Uri.parse(
-            'https://1e69-180-247-226-218.ngrok-free.app/api/payment/notification'),
+            'https://211f-180-247-226-218.ngrok-free.app/api/payment/notification'),
         headers: {
           'Content-Type': 'application/json',
         },
