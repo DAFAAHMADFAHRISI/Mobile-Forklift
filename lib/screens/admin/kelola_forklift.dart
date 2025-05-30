@@ -61,6 +61,18 @@ class _AdminLoginFormState extends State<AdminLoginForm> {
   bool _loading = false;
   String? _error;
 
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() {
