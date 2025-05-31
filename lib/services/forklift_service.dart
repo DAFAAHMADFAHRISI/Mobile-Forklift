@@ -7,8 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http_parser/http_parser.dart';
 
 class ForkliftService {
-  static const String baseUrl = 'http://192.168.1.25:3000/api/unit';
-  static const String authUrl = 'http://192.168.1.25:3000/api/auth/login';
+  static const String baseUrl = 'http://192.168.1.12:3000/api/unit';
+  static const String authUrl = 'http://192.168.1.12:3000/api/auth/login';
 
   // Fungsi login untuk semua user (admin dan user biasa)
   static Future<Map<String, dynamic>> login(

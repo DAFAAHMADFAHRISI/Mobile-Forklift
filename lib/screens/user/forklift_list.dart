@@ -449,7 +449,7 @@ class _ForkliftListState extends State<ForkliftList>
                       child: forklift['gambar'] != null
                           ? CachedNetworkImage(
                               imageUrl:
-                                  'http://192.168.1.25:3000/images/${forklift['gambar']}',
+                                  'http://192.168.1.12:3000/images/${forklift['gambar']}',
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Container(
                                 decoration: BoxDecoration(
