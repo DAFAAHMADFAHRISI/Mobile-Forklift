@@ -11,7 +11,8 @@ class OrderHistory extends StatefulWidget {
   State<OrderHistory> createState() => _OrderHistoryState();
 }
 
-class _OrderHistoryState extends State<OrderHistory> with TickerProviderStateMixin {
+class _OrderHistoryState extends State<OrderHistory>
+    with TickerProviderStateMixin {
   List<Map<String, dynamic>> _orders = [];
   bool _isLoading = true;
   String? _error;
@@ -56,7 +57,7 @@ class _OrderHistoryState extends State<OrderHistory> with TickerProviderStateMix
       _isLoading = true;
       _error = null;
     });
-    
+
     try {
       final token = await AuthService.getToken();
       if (token == null) {
@@ -66,19 +67,20 @@ class _OrderHistoryState extends State<OrderHistory> with TickerProviderStateMix
         });
         return;
       }
-      
+
       final response = await http.get(
-        Uri.parse('http://192.168.1.12:3000/api/pesanan'),
+        Uri.parse('http://192.168.100.91:3000/api/pesanan'),
         headers: {
           'Authorization': 'Bearer $token',
         },
       );
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final pesanan = data['data'] as List<dynamic>;
         setState(() {
-          _orders = pesanan.map((item) => Map<String, dynamic>.from(item)).toList();
+          _orders =
+              pesanan.map((item) => Map<String, dynamic>.from(item)).toList();
           _isLoading = false;
         });
         _animationController.forward();
@@ -125,7 +127,8 @@ class _OrderHistoryState extends State<OrderHistory> with TickerProviderStateMix
           borderRadius: BorderRadius.circular(12),
         ),
         child: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new,
+              color: Colors.white, size: 20),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -176,22 +179,22 @@ class _OrderHistoryState extends State<OrderHistory> with TickerProviderStateMix
     if (_isLoading) {
       return _buildLoadingState();
     }
-    
+
     if (_error != null) {
       return _buildErrorState();
     }
-    
+
     if (_orders.isEmpty) {
       return _buildEmptyState();
     }
-    
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
         children: _orders.asMap().entries.map((entry) {
           int index = entry.key;
           Map<String, dynamic> order = entry.value;
-          
+
           return AnimatedBuilder(
             animation: _animationController,
             builder: (context, child) {
@@ -362,13 +365,15 @@ class _OrderHistoryState extends State<OrderHistory> with TickerProviderStateMix
   Widget _buildOrderCard(Map<String, dynamic> order) {
     final isSelesai = (order['status']?.toString().toLowerCase() == 'selesai');
     final status = order['status']?.toString() ?? '';
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: isSelesai ? () => _navigateToFeedback(order['id_pemesanan']) : null,
+          onTap: isSelesai
+              ? () => _navigateToFeedback(order['id_pemesanan'])
+              : null,
           borderRadius: BorderRadius.circular(20),
           splashColor: primaryPink.withOpacity(0.1),
           highlightColor: primaryPink.withOpacity(0.05),
@@ -451,7 +456,7 @@ class _OrderHistoryState extends State<OrderHistory> with TickerProviderStateMix
 
   Widget _buildStatusBadge(String status) {
     final statusData = _getStatusData(status);
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -511,7 +516,8 @@ class _OrderHistoryState extends State<OrderHistory> with TickerProviderStateMix
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String label, String value, Color iconColor) {
+  Widget _buildDetailRow(
+      IconData icon, String label, String value, Color iconColor) {
     return Row(
       children: [
         Container(
@@ -563,7 +569,10 @@ class _OrderHistoryState extends State<OrderHistory> with TickerProviderStateMix
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [primaryPink.withOpacity(0.1), primaryPurple.withOpacity(0.1)],
+          colors: [
+            primaryPink.withOpacity(0.1),
+            primaryPurple.withOpacity(0.1)
+          ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
