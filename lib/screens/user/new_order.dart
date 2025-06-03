@@ -301,6 +301,7 @@ class _NewOrderState extends State<NewOrder> {
                 children: [
                   if (_selectedForklift != null)
                     Container(
+                      width: double.infinity,
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
@@ -673,6 +674,7 @@ class _NewOrderState extends State<NewOrder> {
                   ),
                   const SizedBox(height: 24),
                   Container(
+                    width: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
