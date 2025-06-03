@@ -292,6 +292,21 @@ class _KelolaOperatorState extends State<KelolaOperator> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+          leading: Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new,
+                  color: Colors.white, size: 20),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ),
           title: Text('Kelola Operator', style: AdminTheme.appBarTitle),
           backgroundColor: AdminTheme.primaryDark,
           elevation: 0),
