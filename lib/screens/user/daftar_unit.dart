@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../services/forklift_service.dart';
 import 'new_order.dart';
 import 'forklift_list.dart';
+import 'about.dart';
 
 class DaftarUnit extends StatefulWidget {
   const DaftarUnit({super.key});
@@ -88,6 +89,26 @@ class _DaftarUnitState extends State<DaftarUnit>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Daftar Unit',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: primaryDark,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const About()),
+            );
+          },
+        ),
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
