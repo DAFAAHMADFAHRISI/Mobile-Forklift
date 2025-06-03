@@ -18,6 +18,7 @@ class _MasukState extends State<Masuk> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _isDisposed = false;
+  bool _obscurePassword = true;
 
   // Define custom colors
   static const Color darkNavy = Color(0xFF1A1D29);
@@ -278,7 +279,7 @@ class _MasukState extends State<Masuk> {
       controller: controller,
       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
       cursorColor: materialPink,
-      obscureText: obscureText,
+      obscureText: label == 'Kata Sandi' ? _obscurePassword : obscureText,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: Colors.white.withOpacity(0.8)),
@@ -295,6 +296,19 @@ class _MasukState extends State<Masuk> {
           borderSide: const BorderSide(color: materialPink, width: 2),
         ),
         prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+        suffixIcon: label == 'Kata Sandi'
+            ? IconButton(
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
+              )
+            : null,
         contentPadding:
             const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       ),

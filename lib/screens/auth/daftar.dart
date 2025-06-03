@@ -20,6 +20,8 @@ class _DaftarState extends State<Daftar> {
   final _noHpController = TextEditingController();
   final _alamatController = TextEditingController();
   bool _isLoading = false;
+  bool _obscurePassword = true;
+  bool _obscureKonfirmasiPassword = true;
 
   // Define custom colors
   static const Color darkNavy = Color(0xFF1A1D29);
@@ -164,7 +166,7 @@ class _DaftarState extends State<Daftar> {
                               try {
                                 final response = await http.post(
                                   Uri.parse(
-                                    'http://10.251.130.195:3000/API/auth/register',
+                                    'http://10.0.0.8:3000/API/auth/register',
                                   ),
                                   headers: {'Content-Type': 'application/json'},
                                   body: jsonEncode({
@@ -282,7 +284,11 @@ class _DaftarState extends State<Daftar> {
       controller: controller,
       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
       cursorColor: materialPink,
-      obscureText: obscureText,
+      obscureText: label == 'Kata Sandi'
+          ? _obscurePassword
+          : label == 'Konfirmasi Kata Sandi'
+              ? _obscureKonfirmasiPassword
+              : obscureText,
       keyboardType: keyboardType,
       maxLines: maxLines,
       decoration: InputDecoration(
@@ -301,6 +307,27 @@ class _DaftarState extends State<Daftar> {
           borderSide: const BorderSide(color: materialPink, width: 2),
         ),
         prefixIcon: Icon(icon, color: Colors.white.withOpacity(0.7)),
+        suffixIcon: (label == 'Kata Sandi' || label == 'Konfirmasi Kata Sandi')
+            ? IconButton(
+                icon: Icon(
+                  (label == 'Kata Sandi'
+                          ? _obscurePassword
+                          : _obscureKonfirmasiPassword)
+                      ? Icons.visibility_off
+                      : Icons.visibility,
+                  color: Colors.white.withOpacity(0.7),
+                ),
+                onPressed: () {
+                  setState(() {
+                    if (label == 'Kata Sandi') {
+                      _obscurePassword = !_obscurePassword;
+                    } else {
+                      _obscureKonfirmasiPassword = !_obscureKonfirmasiPassword;
+                    }
+                  });
+                },
+              )
+            : null,
         contentPadding:
             const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       ),

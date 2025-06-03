@@ -274,7 +274,7 @@ class _UserFeedbackState extends State<UserFeedback> {
                                 }
                                 final response = await http.post(
                                   Uri.parse(
-                                      'http://10.251.130.195:3000/api/feedback/store'),
+                                      'http://10.0.0.8:3000/api/feedback/store'),
                                   headers: {
                                     'Content-Type': 'application/json',
                                     'Authorization': 'Bearer $token',

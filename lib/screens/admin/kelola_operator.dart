@@ -30,7 +30,7 @@ class _KelolaOperatorState extends State<KelolaOperator> {
     try {
       final token = await ForkliftService.getToken();
       final response = await http.get(
-        Uri.parse('http://10.251.130.195:3000/api/operator'),
+        Uri.parse('http://10.0.0.8:3000/api/operator'),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
@@ -128,7 +128,7 @@ class _KelolaOperatorState extends State<KelolaOperator> {
     try {
       final token = await ForkliftService.getToken();
       final response = await http.post(
-        Uri.parse('http://10.251.130.195:3000/api/operator/store'),
+        Uri.parse('http://10.0.0.8:3000/api/operator/store'),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
@@ -226,7 +226,7 @@ class _KelolaOperatorState extends State<KelolaOperator> {
     try {
       final token = await ForkliftService.getToken();
       final response = await http.put(
-        Uri.parse('http://10.251.130.195:3000/api/operator/edit/$id'),
+        Uri.parse('http://10.0.0.8:3000/api/operator/edit/$id'),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
@@ -262,7 +262,7 @@ class _KelolaOperatorState extends State<KelolaOperator> {
     try {
       final token = await ForkliftService.getToken();
       final response = await http.delete(
-        Uri.parse('http://10.251.130.195:3000/api/operator/delete/$id'),
+        Uri.parse('http://10.0.0.8:3000/api/operator/delete/$id'),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
@@ -321,7 +321,7 @@ class _KelolaOperatorState extends State<KelolaOperator> {
                                     operator['foto'].toString().isNotEmpty
                                 ? CircleAvatar(
                                     backgroundImage: NetworkImage(
-                                      'http://10.251.130.195:3000/uploads/operator/${operator['foto']}',
+                                      'http://10.0.0.8:3000/uploads/operator/${operator['foto']}',
                                     ),
                                   )
                                 : const CircleAvatar(child: Icon(Icons.person)),
