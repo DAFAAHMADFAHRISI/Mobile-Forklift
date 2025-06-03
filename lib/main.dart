@@ -5,6 +5,7 @@ import 'package:forklift_mobile/theme/app_theme.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:forklift_mobile/screens/user/about.dart';
 import 'package:forklift_mobile/screens/user/order_history.dart';
+import 'package:upgrader/upgrader.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
