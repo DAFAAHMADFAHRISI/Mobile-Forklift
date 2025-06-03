@@ -161,6 +161,12 @@ class _AdminDashboardState extends State<AdminDashboard>
               ),
             ),
           ),
+          const SizedBox(height: 12),
+          const Text(
+            'Selamat datang di Forklift Admin, platform administrasi terintegrasi yang dirancang khusus untuk mempermudah pengelolaan sistem forklift Anda. Kami menciptakan aplikasi ini untuk memberdayakan administrator dalam mengelola setiap aspek operasional forklift.',
+            style: TextStyle(color: Colors.white70, fontSize: 14),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
@@ -181,6 +187,8 @@ class _AdminDashboardState extends State<AdminDashboard>
           ),
         ],
       ),
+      constraints:
+          const BoxConstraints(minHeight: 0, maxHeight: double.infinity),
       child: Column(
         children: [
           Text(
