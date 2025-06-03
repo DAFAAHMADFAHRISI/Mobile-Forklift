@@ -261,24 +261,61 @@ class _NewOrderState extends State<NewOrder> {
       },
       child: Scaffold(
         backgroundColor: lightGray,
-        appBar: AppBar(
-          title: const Text(
-            'Pemesanan Baru',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(100),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(8, 20, 20, 12),
+            color: darkNavy,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back_ios_new,
+                        color: Colors.white, size: 20),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ForkliftList()),
+                      );
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Text(
+                        'Pemesanan Baru',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        'Pilih forklift dan operator untuk kebutuhan Anda',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.white70,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ),
-          backgroundColor: darkNavy,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const ForkliftList()),
-              );
-            },
           ),
         ),
         body: Container(

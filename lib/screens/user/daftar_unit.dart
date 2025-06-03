@@ -4,6 +4,7 @@ import '../../services/forklift_service.dart';
 import 'new_order.dart';
 import 'forklift_list.dart';
 import 'about.dart';
+import 'package:intl/intl.dart';
 
 class DaftarUnit extends StatefulWidget {
   const DaftarUnit({super.key});
@@ -550,7 +551,7 @@ class _DaftarUnitState extends State<DaftarUnit>
                             const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                       Text(
-                        'Rp ${forklift['harga_per_jam']}/jam',
+                        'Rp ${formatRupiah(forklift['harga_per_jam'])}/jam',
                         style: TextStyle(
                           color: accentPink,
                           fontWeight: FontWeight.bold,
@@ -674,5 +675,10 @@ class _DaftarUnitState extends State<DaftarUnit>
         ),
       ),
     );
+  }
+
+  String formatRupiah(dynamic harga) {
+    final intHarga = int.tryParse(harga.toString()) ?? 0;
+    return NumberFormat('#,###', 'id_ID').format(intHarga);
   }
 }
