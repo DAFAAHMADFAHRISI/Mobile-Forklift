@@ -157,22 +157,6 @@ class About extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const NewOrder(),
-                          ),
-                        );
-                      },
-                      child: _buildFeatureListItem(
-                        icon: Icons.add_circle_outline,
-                        title: 'Pemesanan Baru',
-                        description: 'Buat pemesanan forklift baru',
-                        color: materialPurple,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
                             builder: (context) => const OrderHistory(),
                           ),
                         );
@@ -182,23 +166,6 @@ class About extends StatelessWidget {
                         title: 'Riwayat Pemesanan',
                         description: 'Lihat riwayat pemesanan Anda',
                         color: Colors.orange,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const UserFeedback(idPemesanan: 0),
-                          ),
-                        );
-                      },
-                      child: _buildFeatureListItem(
-                        icon: Icons.feedback_outlined,
-                        title: 'Feedback',
-                        description: 'Berikan masukan untuk layanan kami',
-                        color: Colors.red,
                       ),
                     ),
                   ],
