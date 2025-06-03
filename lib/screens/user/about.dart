@@ -4,6 +4,8 @@ import 'package:forklift_mobile/screens/user/daftar_unit.dart';
 import 'package:forklift_mobile/screens/user/order_history.dart';
 import 'package:forklift_mobile/screens/user/new_order.dart';
 import 'package:forklift_mobile/screens/user/feedback.dart';
+import 'package:forklift_mobile/screens/auth/masuk.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class About extends StatelessWidget {
   const About({super.key});
@@ -14,6 +16,21 @@ class About extends StatelessWidget {
   static const Color materialPink = Color(0xFFE91E63);
   static const Color materialPurple = Color(0xFF9C27B0);
   static const Color lightGray = Color(0xFFF8F9FA);
+
+  Future<void> _handleLogout(BuildContext context) async {
+    // Clear shared preferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    // Navigate to login screen and clear all previous routes
+    if (context.mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const Masuk()),
+        (route) => false,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +47,12 @@ class About extends StatelessWidget {
         backgroundColor: darkNavy,
         elevation: 0,
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () => _handleLogout(context),
+          ),
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(
