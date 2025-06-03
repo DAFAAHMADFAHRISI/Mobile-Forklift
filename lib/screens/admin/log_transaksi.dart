@@ -27,11 +27,18 @@ class _LogTransaksiState extends State<LogTransaksi> {
     try {
       final response =
           await http.get(Uri.parse('http://10.0.0.8:3000/api/log-transaksi/'));
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
+        print('Decoded JSON data: $jsonData');
         final List<dynamic> data = jsonData['data'];
+        print('Number of logs received: ${data.length}');
+
         setState(() {
           _logs = data.map<Map<String, dynamic>>((item) {
+            print('Processing log item: $item');
             return {
               'id': item['id_log'],
               'tanggal': item['waktu'],
@@ -43,6 +50,7 @@ class _LogTransaksiState extends State<LogTransaksi> {
               },
             };
           }).toList();
+          print('Final logs list length: ${_logs.length}');
           _isLoading = false;
         });
       } else {
