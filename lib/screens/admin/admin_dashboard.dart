@@ -3,7 +3,6 @@ import 'package:forklift_mobile/screens/admin/kelola_pengguna.dart';
 import 'package:forklift_mobile/screens/admin/kelola_forklift.dart';
 import 'package:forklift_mobile/screens/admin/kelola_operator.dart';
 import 'package:forklift_mobile/screens/admin/kelola_pemesanan.dart';
-import 'package:forklift_mobile/screens/admin/verifikasi_pembayaran.dart';
 import 'package:forklift_mobile/screens/admin/log_transaksi.dart';
 import 'package:forklift_mobile/screens/admin/daftar_feedback.dart';
 
@@ -243,16 +242,6 @@ class _AdminDashboardState extends State<AdminDashboard>
                   ),
                 ),
                 _buildEnhancedMenuCard(
-                  'Verifikasi\nPembayaran',
-                  Icons.payment_outlined,
-                  const Color(0xFFFFC107),
-                  () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const VerifikasiPembayaran()),
-                  ),
-                ),
-                _buildEnhancedMenuCard(
                   'Log\nTransaksi',
                   Icons.history_outlined,
                   const Color(0xFF009688),
@@ -374,7 +363,8 @@ class _AdminDashboardState extends State<AdminDashboard>
               const Text('Konfirmasi Logout'),
             ],
           ),
-          content: const Text('Apakah Anda yakin ingin keluar dari dashboard admin?'),
+          content: const Text(
+              'Apakah Anda yakin ingin keluar dari dashboard admin?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
