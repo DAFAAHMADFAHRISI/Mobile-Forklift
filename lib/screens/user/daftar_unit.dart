@@ -89,26 +89,7 @@ class _DaftarUnitState extends State<DaftarUnit>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Daftar Unit',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: primaryDark,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const About()),
-            );
-          },
-        ),
-      ),
+      backgroundColor: lightGray,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -121,17 +102,107 @@ class _DaftarUnitState extends State<DaftarUnit>
             ],
           ),
         ),
-        child: _isLoading
-            ? _buildSimpleLoadingState()
-            : _error != null
-                ? _buildSimpleErrorState()
-                : RefreshIndicator(
-                    onRefresh: _loadAvailableForklifts,
-                    color: accentPink,
-                    child: _forklifts.isEmpty
-                        ? _buildSimpleEmptyState()
-                        : _buildMainContent(),
+        child: SafeArea(
+          child: Column(
+            children: [
+              _buildEnhancedAppBar(),
+              Expanded(
+                child: _isLoading
+                    ? _buildSimpleLoadingState()
+                    : _error != null
+                        ? _buildSimpleErrorState()
+                        : RefreshIndicator(
+                            onRefresh: _loadAvailableForklifts,
+                            color: accentPink,
+                            child: _forklifts.isEmpty
+                                ? _buildSimpleEmptyState()
+                                : _buildMainContent(),
+                          ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnhancedAppBar() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        children: [
+          // Enhanced back button
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new,
+                  color: Colors.white, size: 20),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const About()),
+                );
+              },
+            ),
+          ),
+          const SizedBox(width: 16),
+
+          // Enhanced title section
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Daftar Unit',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: 1,
                   ),
+                ),
+                Text(
+                  'Lihat daftar unit forklift yang tersedia',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.7),
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Stats badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [accentPink, accentPurple],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: accentPink.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Text(
+              '${_forklifts.length} Unit',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
