@@ -296,27 +296,7 @@ class _AboutState extends State<About> {
       padding: const EdgeInsets.all(20),
       child: Row(
         children: [
-          // Enhanced back button
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new,
-                  color: Colors.white, size: 20),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ForkliftList()),
-                );
-              },
-            ),
-          ),
-          const SizedBox(width: 16),
-
-          // Enhanced title section
+          // Remove back button, only leave space for title and logout
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,8 +321,7 @@ class _AboutState extends State<About> {
               ],
             ),
           ),
-
-          // Logout button
+          // Logout button only
           Container(
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.1),
