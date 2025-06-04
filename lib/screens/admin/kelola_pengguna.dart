@@ -37,7 +37,7 @@ class _KelolaPenggunaState extends State<KelolaPengguna> {
         return;
       }
       final response = await http.get(
-        Uri.parse('http://localhost:3000/API/admin/users'),
+        Uri.parse('http://192.168.100.91:3000/API/admin/users'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -82,7 +82,7 @@ class _KelolaPenggunaState extends State<KelolaPengguna> {
         return;
       }
       final response = await http.delete(
-        Uri.parse('http://localhost:3000/API/admin/users/$id'),
+        Uri.parse('http://192.168.100.91:3000/API/admin/users/$id'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -161,39 +161,47 @@ class _KelolaPenggunaState extends State<KelolaPengguna> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 30), // Increased padding
                         itemCount: _users.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 20), // Reduced separator height
+                        separatorBuilder: (context, index) => const SizedBox(
+                            height: 20), // Reduced separator height
                         itemBuilder: (context, index) {
                           final user = _users[index];
                           return Container(
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20), // Slightly less rounded corners
+                              borderRadius: BorderRadius.circular(
+                                  20), // Slightly less rounded corners
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.15), // Darker shadow
+                                  color: Colors.black
+                                      .withOpacity(0.15), // Darker shadow
                                   blurRadius: 15, // Slightly less blur
-                                  offset: const Offset(0, 6), // Slightly less offset
+                                  offset: const Offset(
+                                      0, 6), // Slightly less offset
                                 ),
                               ],
                               gradient: LinearGradient(
                                 colors: [
-                                  Colors.white, // Solid white for better contrast
+                                  Colors
+                                      .white, // Solid white for better contrast
                                   Colors.grey[50]!,
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
                               border: Border.all(
-                                  color: Colors.black12.withOpacity(0.05)), // Lighter border
+                                  color: Colors.black12
+                                      .withOpacity(0.05)), // Lighter border
                             ),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 20), // Increased padding
+                                  horizontal: 20,
+                                  vertical: 20), // Increased padding
                               child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center, // Vertically center alignment
+                                crossAxisAlignment: CrossAxisAlignment
+                                    .center, // Vertically center alignment
                                 children: [
                                   _buildAvatar(user['nama'] ?? ''),
-                                  const SizedBox(width: 20), // Increased spacing
+                                  const SizedBox(
+                                      width: 20), // Increased spacing
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -203,13 +211,16 @@ class _KelolaPenggunaState extends State<KelolaPengguna> {
                                           user['nama'],
                                           style: const TextStyle(
                                               fontWeight: FontWeight.bold,
-                                              fontSize: 22, // Larger font size for name
+                                              fontSize:
+                                                  22, // Larger font size for name
                                               color: Colors.black87),
                                         ),
-                                        const SizedBox(height: 6), // Increased spacing
+                                        const SizedBox(
+                                            height: 6), // Increased spacing
                                         Text('Email: ${user['email']}',
                                             style: const TextStyle(
-                                                fontSize: 15, // Slightly larger font
+                                                fontSize:
+                                                    15, // Slightly larger font
                                                 color: Colors.black54)),
                                         Text('Peran: ${user['role']}',
                                             style: const TextStyle(
@@ -229,28 +240,34 @@ class _KelolaPenggunaState extends State<KelolaPengguna> {
                                   // Removed the edit IconButton
                                   IconButton(
                                     icon: const Icon(Icons.delete,
-                                        color: Colors.red, // Solid red for delete
+                                        color:
+                                            Colors.red, // Solid red for delete
                                         size: 24), // Larger delete icon
                                     onPressed: () async {
-                                      final confirm =
-                                          await showDialog<bool>(
+                                      final confirm = await showDialog<bool>(
                                         context: context,
                                         builder: (context) => AlertDialog(
-                                          title: const Text('Konfirmasi Hapus', style: TextStyle(fontWeight: FontWeight.bold)),
+                                          title: const Text('Konfirmasi Hapus',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold)),
                                           content: Text(
                                               'Apakah Anda yakin ingin menghapus pengguna ${user['nama']}?'), // More specific confirmation
                                           actions: [
                                             TextButton(
                                               onPressed: () =>
                                                   Navigator.pop(context, false),
-                                              child: const Text('Batal', style: TextStyle(color: Colors.black54)),
+                                              child: const Text('Batal',
+                                                  style: TextStyle(
+                                                      color: Colors.black54)),
                                             ),
                                             TextButton(
                                               onPressed: () =>
                                                   Navigator.pop(context, true),
                                               child: const Text('Hapus',
                                                   style: TextStyle(
-                                                      color: Colors.red, fontWeight: FontWeight.bold)),
+                                                      color: Colors.red,
+                                                      fontWeight:
+                                                          FontWeight.bold)),
                                             ),
                                           ],
                                         ),
@@ -259,7 +276,8 @@ class _KelolaPenggunaState extends State<KelolaPengguna> {
                                         await deleteUser(user['id']);
                                       }
                                     },
-                                    tooltip: 'Hapus Pengguna', // More descriptive tooltip
+                                    tooltip:
+                                        'Hapus Pengguna', // More descriptive tooltip
                                   ),
                                 ],
                               ),
@@ -274,14 +292,17 @@ class _KelolaPenggunaState extends State<KelolaPengguna> {
           onPressed: () {
             // TODO: Implementasi tambah pengguna baru
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Fungsi tambah pengguna belum diimplementasikan')),
+              const SnackBar(
+                  content:
+                      Text('Fungsi tambah pengguna belum diimplementasikan')),
             );
           },
           backgroundColor: Colors.deepPurple,
           elevation: 10, // Increased elevation for a more prominent button
-          child: const Icon(Icons.person_add, size: 32, color: Colors.white), // Changed icon to person_add
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)), // Slightly less rounded
+          child: const Icon(Icons.person_add,
+              size: 32, color: Colors.white), // Changed icon to person_add
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18)), // Slightly less rounded
         ),
       ),
     );
