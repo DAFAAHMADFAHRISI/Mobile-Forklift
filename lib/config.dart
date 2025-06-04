@@ -1,7 +1,7 @@
 class Config {
   // Base URL configuration
   static const String baseUrl =
-      'http://10.0.0.8:3000'; // Change this IP address as needed
+      'http://192.168.100.91:3000'; // Change this IP address as needed
 
   // API endpoints
   static String get apiUrl => '$baseUrl/api';

@@ -43,7 +43,7 @@ class _DaftarOperatorState extends State<DaftarOperator> {
         return;
       }
       final response = await http.get(
-        Uri.parse('http://10.0.0.8:3000/api/operator'),
+        Uri.parse('http://192.168.100.91:3000/api/operator'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -140,7 +140,7 @@ class _DaftarOperatorState extends State<DaftarOperator> {
                           child: operator['foto'] != null &&
                                   operator['foto'].toString().isNotEmpty
                               ? Image.network(
-                                  'http://10.0.0.8:3000/uploads/operator/${operator['foto']}',
+                                  'http://192.168.100.91:3000/uploads/operator/${operator['foto']}',
                                   width: 56,
                                   height: 56,
                                   fit: BoxFit.cover,
