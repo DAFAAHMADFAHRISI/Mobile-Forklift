@@ -6,6 +6,7 @@ import 'forklift_list.dart';
 import 'about.dart';
 import 'package:intl/intl.dart';
 
+/// Widget untuk menampilkan daftar unit forklift yang tersedia
 class DaftarUnit extends StatefulWidget {
   const DaftarUnit({super.key});
 
@@ -15,15 +16,22 @@ class DaftarUnit extends StatefulWidget {
 
 class _DaftarUnitState extends State<DaftarUnit>
     with SingleTickerProviderStateMixin {
+  // List untuk menyimpan data forklift
   List<Map<String, dynamic>> _forklifts = [];
+  // Status loading
   bool _isLoading = true;
+  // Pesan error jika terjadi kesalahan
   String? _error;
+  // Controller untuk halaman
   late PageController _pageController;
+  // Halaman saat ini
   int _currentPage = 0;
+  // Controller untuk animasi fade
   late AnimationController _fadeController;
+  // Animasi fade
   late Animation<double> _fadeAnimation;
 
-  // Simplified color scheme
+  // Skema warna yang digunakan
   final Color primaryDark = const Color(0xFF1A1D29);
   final Color accentPink = const Color(0xFFE91E63);
   final Color accentPurple = const Color(0xFF9C27B0);
@@ -32,8 +40,10 @@ class _DaftarUnitState extends State<DaftarUnit>
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(viewportFraction: 0.9); // Make it wider
+    // Inisialisasi controller halaman dengan viewport fraction 0.9
+    _pageController = PageController(viewportFraction: 0.9);
 
+    // Inisialisasi controller dan animasi fade
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -42,12 +52,14 @@ class _DaftarUnitState extends State<DaftarUnit>
       CurvedAnimation(parent: _fadeController, curve: Curves.easeOut),
     );
 
+    // Load data forklift dan mulai auto slide
     _loadAvailableForklifts();
     _startAutoSlide();
   }
 
   @override
   void dispose() {
+    // Bersihkan controller saat widget dihapus
     _pageController.dispose();
     _fadeController.dispose();
     super.dispose();
@@ -488,7 +500,7 @@ class _DaftarUnitState extends State<DaftarUnit>
                             child: forklift['gambar'] != null
                                 ? CachedNetworkImage(
                                     imageUrl:
-                                        'http://192.168.100.91:3000/images/${forklift['gambar']}',
+                                        'http://10.251.130.195:3000/images/${forklift['gambar']}',
                                     fit: BoxFit
                                         .contain, // Changed to contain for better visibility
                                     placeholder: (context, url) => Center(

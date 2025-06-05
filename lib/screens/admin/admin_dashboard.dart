@@ -209,6 +209,7 @@ class _AdminDashboardState extends State<AdminDashboard>
               crossAxisSpacing: 16,
               childAspectRatio: 0.9,
               children: [
+                // Card untuk manajemen user
                 _buildEnhancedMenuCard(
                   'Manajemen\nUser',
                   Icons.people_outline,
@@ -219,6 +220,7 @@ class _AdminDashboardState extends State<AdminDashboard>
                         builder: (context) => const KelolaPengguna()),
                   ),
                 ),
+                // Card untuk manajemen unit forklift
                 _buildEnhancedMenuCard(
                   'Manajemen\nUnit',
                   Icons.precision_manufacturing_outlined,
@@ -229,6 +231,7 @@ class _AdminDashboardState extends State<AdminDashboard>
                         builder: (context) => const KelolaForklift()),
                   ),
                 ),
+                // Card untuk manajemen operator
                 _buildEnhancedMenuCard(
                   'Manajemen\nOperator',
                   Icons.engineering_outlined,
@@ -239,6 +242,7 @@ class _AdminDashboardState extends State<AdminDashboard>
                         builder: (context) => const KelolaOperator()),
                   ),
                 ),
+                // Card untuk kelola pemesanan
                 _buildEnhancedMenuCard(
                   'Kelola\nPemesanan',
                   Icons.shopping_cart_outlined,

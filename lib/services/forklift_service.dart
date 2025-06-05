@@ -7,10 +7,15 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http_parser/http_parser.dart';
 
 class ForkliftService {
-  static const String baseUrl = 'http://192.168.100.91:3000/api/unit';
-  static const String authUrl = 'http://192.168.100.91:3000/api/auth/login';
+  // Base URL untuk API endpoint unit forklift
+  static const String baseUrl = 'http://10.251.130.195:3000/api/unit';
+  // Base URL untuk API endpoint autentikasi
+  static const String authUrl = 'http://10.251.130.195:3000/api/auth/login';
 
-  // Fungsi login untuk semua user (admin dan user biasa)
+  /// Fungsi untuk melakukan login user (admin dan user biasa)
+  /// @param username Username pengguna
+  /// @param password Password pengguna
+  /// @return Map berisi status login dan data user jika berhasil
   static Future<Map<String, dynamic>> login(
       String username, String password) async {
     final response = await http.post(
@@ -42,6 +47,8 @@ class ForkliftService {
     };
   }
 
+  /// Fungsi untuk mendapatkan token yang tersimpan
+  /// @return String token jika ada, null jika tidak ada
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -81,7 +88,10 @@ class ForkliftService {
     }
   }
 
-  // Add new forklift
+  /// Fungsi untuk menambahkan forklift baru
+  /// @param data Map berisi data forklift yang akan ditambahkan
+  /// @param imageFile File gambar forklift
+  /// @return boolean true jika berhasil, false jika gagal
   static Future<bool> addForklift(
       Map<String, String> data, dynamic imageFile) async {
     final prefs = await SharedPreferences.getInstance();
@@ -144,7 +154,11 @@ class ForkliftService {
     }
   }
 
-  // Update forklift
+  /// Fungsi untuk mengedit data forklift
+  /// @param id ID forklift yang akan diedit
+  /// @param data Map berisi data forklift yang akan diupdate
+  /// @param imageFile File gambar forklift baru (opsional)
+  /// @return boolean true jika berhasil, false jika gagal
   static Future<bool> editForklift(
       int id, Map<String, String> data, dynamic imageFile) async {
     final prefs = await SharedPreferences.getInstance();
@@ -223,7 +237,9 @@ class ForkliftService {
     }
   }
 
-  // Helper function to get MIME type
+  /// Fungsi helper untuk mendapatkan MIME type dari file
+  /// @param fileName Nama file
+  /// @return String MIME type yang sesuai
   static String _getMimeType(String fileName) {
     final extension = fileName.split('.').last.toLowerCase();
     switch (extension) {
@@ -237,7 +253,9 @@ class ForkliftService {
     }
   }
 
-  // Delete forklift
+  /// Fungsi untuk menghapus forklift
+  /// @param id ID forklift yang akan dihapus
+  /// @return boolean true jika berhasil, false jika gagal
   static Future<bool> deleteForklift(int id) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');

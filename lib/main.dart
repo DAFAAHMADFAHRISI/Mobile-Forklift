@@ -7,12 +7,15 @@ import 'package:forklift_mobile/screens/user/about.dart';
 import 'package:forklift_mobile/screens/user/order_history.dart';
 import 'package:upgrader/upgrader.dart';
 
+/// Fungsi utama yang dijalankan saat aplikasi dimulai
+/// Menginisialisasi binding Flutter dan format tanggal Indonesia
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID', null);
   runApp(const MyApp());
 }
 
+/// Widget utama aplikasi yang mendefinisikan tema dan rute
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

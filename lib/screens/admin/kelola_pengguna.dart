@@ -37,7 +37,7 @@ class _KelolaPenggunaState extends State<KelolaPengguna> {
         return;
       }
       final response = await http.get(
-        Uri.parse('http://192.168.100.91:3000/API/admin/users'),
+        Uri.parse('http://10.251.130.195:3000/API/admin/users'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -82,7 +82,7 @@ class _KelolaPenggunaState extends State<KelolaPengguna> {
         return;
       }
       final response = await http.delete(
-        Uri.parse('http://192.168.100.91:3000/API/admin/users/$id'),
+        Uri.parse('http://10.251.130.195:3000/API/admin/users/$id'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -289,20 +289,24 @@ class _KelolaPenggunaState extends State<KelolaPengguna> {
       floatingActionButton: Container(
         margin: const EdgeInsets.only(bottom: 20, right: 10), // Adjusted margin
         child: FloatingActionButton(
+          // TODO: Implementasi tambah pengguna baru
           onPressed: () {
-            // TODO: Implementasi tambah pengguna baru
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                   content:
                       Text('Fungsi tambah pengguna belum diimplementasikan')),
             );
           },
+          // Warna dan style tombol
           backgroundColor: Colors.deepPurple,
-          elevation: 10, // Increased elevation for a more prominent button
+          elevation:
+              10, // Meningkatkan elevasi untuk tombol yang lebih menonjol
           child: const Icon(Icons.person_add,
-              size: 32, color: Colors.white), // Changed icon to person_add
+              size: 32,
+              color: Colors.white), // Mengubah icon menjadi person_add
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18)), // Slightly less rounded
+              borderRadius:
+                  BorderRadius.circular(18)), // Sedikit mengurangi rounded
         ),
       ),
     );

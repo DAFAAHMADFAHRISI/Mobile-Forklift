@@ -68,6 +68,7 @@ class _ForkliftListState extends State<ForkliftList>
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
+      // Menangani tombol back untuk navigasi ke halaman About
       onWillPop: () async {
         Navigator.pushReplacement(
           context,
@@ -78,6 +79,7 @@ class _ForkliftListState extends State<ForkliftList>
       child: Scaffold(
         backgroundColor: lightGray,
         body: Container(
+          // Dekorasi gradient untuk background
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -93,8 +95,10 @@ class _ForkliftListState extends State<ForkliftList>
           child: SafeArea(
             child: Column(
               children: [
+                // AppBar dengan desain yang ditingkatkan
                 _buildEnhancedAppBar(),
                 Expanded(
+                  // Menampilkan loading, error, atau konten berdasarkan state
                   child: _isLoading
                       ? _buildEnhancedLoadingState()
                       : _error != null
@@ -449,7 +453,7 @@ class _ForkliftListState extends State<ForkliftList>
                       child: forklift['gambar'] != null
                           ? CachedNetworkImage(
                               imageUrl:
-                                  'http://192.168.100.91:3000/images/${forklift['gambar']}',
+                                  'http://10.251.130.195:3000/images/${forklift['gambar']}',
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Container(
                                 decoration: BoxDecoration(
