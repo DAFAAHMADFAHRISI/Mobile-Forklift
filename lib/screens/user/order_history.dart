@@ -16,7 +16,7 @@ class _OrderHistoryState extends State<OrderHistory>
   List<Map<String, dynamic>> _orders = [];
   bool _isLoading = true;
   String? _error;
-  final String baseImageUrl = 'http://192.168.1.19:3000/uploads/pembayaran/';
+  final String baseImageUrl = 'http://192.168.1.10:3000/uploads/pembayaran/';
   late AnimationController _animationController;
 
   // Clean modern colors
@@ -69,7 +69,7 @@ class _OrderHistoryState extends State<OrderHistory>
       }
 
       final response = await http.get(
-        Uri.parse('http://10.251.130.195:3000/api/pesanan'),
+        Uri.parse('http://192.168.1.19:3000/api/pesanan'),
         headers: {
           'Authorization': 'Bearer $token',
         },

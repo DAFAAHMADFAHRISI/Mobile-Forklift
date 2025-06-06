@@ -79,6 +79,7 @@ class _MasukState extends State<Masuk> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('username', _usernameController.text.trim());
         await prefs.setInt('id_user', user['id_user']);
+        await prefs.setString('token', data['token']);
 
         if (!mounted) return;
 

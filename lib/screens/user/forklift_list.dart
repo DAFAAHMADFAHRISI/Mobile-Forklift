@@ -51,7 +51,7 @@ class _ForkliftListState extends State<ForkliftList>
         _isLoading = true;
         _error = null;
       });
-      final forklifts = await ForkliftService.getAllForklifts();
+      final forklifts = await ForkliftService.getAvailableForklifts();
       setState(() {
         _forklifts = forklifts;
         _isLoading = false;
@@ -453,7 +453,7 @@ class _ForkliftListState extends State<ForkliftList>
                       child: forklift['gambar'] != null
                           ? CachedNetworkImage(
                               imageUrl:
-                                  'http://10.251.130.195:3000/images/${forklift['gambar']}',
+                                  'http://192.168.1.10:3000/images/${forklift['gambar']}',
                               fit: BoxFit.cover,
                               placeholder: (context, url) => Container(
                                 decoration: BoxDecoration(
