@@ -430,7 +430,7 @@ class _NewOrderState extends State<NewOrder> {
                                                         .toString()
                                                         .isNotEmpty
                                                 ? Image.network(
-                                                    'http://192.168.1.10:3000/uploads/operator/${_selectedOperator!['foto']}',
+                                                    'http://10.212.3.180:3000/uploads/operator/${_selectedOperator!['foto']}',
                                                     width: 48,
                                                     height: 48,
                                                     fit: BoxFit.cover,
@@ -766,7 +766,7 @@ class _NewOrderState extends State<NewOrder> {
                                               .toString()
                                               .isNotEmpty
                                       ? Image.network(
-                                          'http://192.168.1.10:3000/uploads/operator/${_selectedOperator!['foto']}',
+                                          'http://10.212.3.180:3000/uploads/operator/${_selectedOperator!['foto']}',
                                           width: 32,
                                           height: 32,
                                           fit: BoxFit.cover,

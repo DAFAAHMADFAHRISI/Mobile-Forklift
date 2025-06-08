@@ -8,9 +8,9 @@ import 'package:http_parser/http_parser.dart';
 
 class ForkliftService {
   // Base URL untuk API endpoint unit forklift
-  static const String baseUrl = 'http://192.168.1.10:3000/api/unit';
+  static const String baseUrl = 'http://10.212.3.180:3000/api/unit';
   // Base URL untuk API endpoint autentikasi
-  static const String authUrl = 'http://192.168.1.10:3000/api/auth/login';
+  static const String authUrl = 'http://10.212.3.180:3000/api/auth/login';
 
   /// Fungsi untuk melakukan login user (admin dan user biasa)
   /// @param username Username pengguna
@@ -57,7 +57,12 @@ class ForkliftService {
   // Get all forklifts
   static Future<List<Map<String, dynamic>>> getAllForklifts() async {
     try {
-      final response = await http.get(Uri.parse(baseUrl));
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      final response = await http.get(
+        Uri.parse(baseUrl),
+        headers: token != null ? {'Authorization': 'Bearer $token'} : {},
+      );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['status'] == true) {

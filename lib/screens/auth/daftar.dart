@@ -166,7 +166,7 @@ class _DaftarState extends State<Daftar> {
                               try {
                                 final response = await http.post(
                                   Uri.parse(
-                                    'http://192.168.1.10:3000/API/auth/register',
+                                    'http://10.212.3.180:3000/API/auth/register',
                                   ),
                                   headers: {'Content-Type': 'application/json'},
                                   body: jsonEncode({
