@@ -286,29 +286,6 @@ class _KelolaPenggunaState extends State<KelolaPengguna> {
                         },
                       ),
       ),
-      floatingActionButton: Container(
-        margin: const EdgeInsets.only(bottom: 20, right: 10), // Adjusted margin
-        child: FloatingActionButton(
-          // TODO: Implementasi tambah pengguna baru
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content:
-                      Text('Fungsi tambah pengguna belum diimplementasikan')),
-            );
-          },
-          // Warna dan style tombol
-          backgroundColor: Colors.deepPurple,
-          elevation:
-              10, // Meningkatkan elevasi untuk tombol yang lebih menonjol
-          child: const Icon(Icons.person_add,
-              size: 32,
-              color: Colors.white), // Mengubah icon menjadi person_add
-          shape: RoundedRectangleBorder(
-              borderRadius:
-                  BorderRadius.circular(18)), // Sedikit mengurangi rounded
-        ),
-      ),
     );
   }
 }

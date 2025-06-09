@@ -69,7 +69,7 @@ class _OrderHistoryState extends State<OrderHistory>
       }
 
       final response = await http.get(
-        Uri.parse('http://192.168.1.19:3000/api/pesanan'),
+        Uri.parse('http://192.168.1.21:3000/api/pesanan'),
         headers: {
           'Authorization': 'Bearer $token',
         },
