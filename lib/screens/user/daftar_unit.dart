@@ -500,7 +500,7 @@ class _DaftarUnitState extends State<DaftarUnit>
                             child: forklift['gambar'] != null
                                 ? CachedNetworkImage(
                                     imageUrl:
-                                        'http://10.212.3.180:3000/images/${forklift['gambar']}',
+                                        'http://192.168.1.21:3000/images/${forklift['gambar']}',
                                     fit: BoxFit
                                         .contain, // Changed to contain for better visibility
                                     placeholder: (context, url) => Center(

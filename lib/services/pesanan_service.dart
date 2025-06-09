@@ -6,7 +6,7 @@ import '../models/midtrans_notification.dart';
 import 'dart:async';
 
 class PesananService {
-  static const String baseUrl = 'http://10.212.3.180:3000/api/pesanan';
+  static const String baseUrl = 'http://192.168.1.21:3000/api/pesanan';
 
   // Get all pesanan (for admin) or user's pesanan
   static Future<List<Map<String, dynamic>>> getPesanan(String token) async {
@@ -105,7 +105,7 @@ class PesananService {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     final response = await http.post(
-      Uri.parse('http://10.212.3.180:3000/api/pesanan/store'),
+      Uri.parse('http://192.168.1.21:3000/api/pesanan/store'),
       headers: {
         'Content-Type': 'application/json',
         if (token != null) 'Authorization': 'Bearer $token',
@@ -131,7 +131,7 @@ class PesananService {
     try {
       final response = await http.post(
         Uri.parse(
-            'https://35bd-2001-448a-5020-bad7-e196-d230-a536-7b75.ngrok-free.app/api/payment/notification'),
+            'https://007a-36-68-221-75.ngrok-free.app/api/payment/notification'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -158,7 +158,7 @@ class PesananService {
     _timer = Timer.periodic(Duration(seconds: 5), (timer) async {
       try {
         final response = await http.get(
-          Uri.parse('http://10.212.3.180:3000/api/payment/status/$orderId'),
+          Uri.parse('http://192.168.1.21:3000/api/payment/status/$orderId'),
           headers: {
             'Content-Type': 'application/json',
             if (token != null) 'Authorization': 'Bearer $token',

@@ -37,7 +37,7 @@ class _KelolaPenggunaState extends State<KelolaPengguna> {
         return;
       }
       final response = await http.get(
-        Uri.parse('http://10.212.3.180:3000/API/admin/users'),
+        Uri.parse('http://192.168.1.21:3000/API/admin/users'),
         headers: {
           'Authorization': 'Bearer $token',
         },
@@ -82,7 +82,7 @@ class _KelolaPenggunaState extends State<KelolaPengguna> {
         return;
       }
       final response = await http.delete(
-        Uri.parse('http://10.212.3.180:3000/API/admin/users/$id'),
+        Uri.parse('http://192.168.1.21:3000/API/admin/users/$id'),
         headers: {
           'Authorization': 'Bearer $token',
         },

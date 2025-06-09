@@ -27,7 +27,7 @@ class _DaftarFeedbackState extends State<DaftarFeedback> {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token');
       final response = await http.get(
-        Uri.parse('http://10.212.3.180:3000/api/feedback'),
+        Uri.parse('http://192.168.1.21:3000/api/feedback'),
         headers: {
           if (token != null) 'Authorization': 'Bearer $token',
         },
@@ -67,7 +67,7 @@ class _DaftarFeedbackState extends State<DaftarFeedback> {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('token');
       final response = await http.delete(
-        Uri.parse('http://10.212.3.180:3000/api/feedback/delete/$id'),
+        Uri.parse('http://192.168.1.21:3000/api/feedback/delete/$id'),
         headers: {
           if (token != null) 'Authorization': 'Bearer $token',
         },
